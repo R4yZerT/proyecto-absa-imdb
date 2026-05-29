@@ -9,11 +9,16 @@ venv/
 ENV/
 env/
 
-# Data files (raw and processed - too large for git)
+# Data files (raw, processed, output - too large for git)
 data/raw/*.csv
 data/raw/*.zip
 data/processed/*.parquet
 data/processed/*.csv
+data/output/*.parquet
+data/output/**/*.bin
+data/output/**/*.safetensors
+data/output/**/*.pt
+data/output/**/*.pth
 
 # Model weights (too large for git)
 data/models/**
@@ -38,3 +43,11 @@ logs/*.log
 *.egg-info/
 dist/
 build/
+
+# Node / pnpm
+node_modules/
+
+# Agent / opencode
+.agents/
+.opencode/
+skills-lock.json
