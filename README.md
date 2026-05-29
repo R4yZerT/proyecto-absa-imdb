@@ -235,12 +235,58 @@ Adicionalmente, `metricas_por_aspecto.parquet` agrega:
 
 ---
 
+## Dashboard de Streamlit
+
+El proyecto incluye un dashboard interactivo multi-página para explorar los resultados del pipeline y realizar inferencia en tiempo real.
+
+### Estructura del Dashboard
+
+```text
+dashboard/
+├── app.py                    # Entry point principal
+├── pages/
+│   ├── 1_📊_Overview.py      # Métricas clave y distribución de sentimientos
+│   ├── 2_🎭_Aspectos.py      # Top aspectos, sentimiento por aspecto, nube de adjetivos
+│   ├── 3_🧠_Inferencia.py    # Input de texto + predicción en tiempo real
+│   └── 4_🔍_Explorador.py    # Tabla interactiva con filtros avanzados
+└── utils/
+    ├── data_loader.py        # Cargar y cachear parquets
+    ├── visualizations.py     # Funciones de Plotly y WordCloud
+    └── model_loader.py       # Cargar modelo fine-tuneado (lazy loading)
+```
+
+### Ejecución
+
+```bash
+# Instalar dependencias del dashboard
+pip install -r requirements.txt
+
+# Ejecutar desde la raíz del proyecto
+streamlit run dashboard/app.py
+
+# O desde la carpeta dashboard
+cd dashboard && streamlit run app.py
+```
+
+### Páginas del Dashboard
+
+| Página | Descripción | Contenido |
+|--------|-------------|-----------|
+| **📊 Overview** | Métricas generales | Cards con KPIs, distribución de sentimientos, comparación BERT vs original, histograma de confianza |
+| **🎭 Aspectos** | Análisis de aspectos | Top 20 aspectos, sentimiento por aspecto (stacked bar), nube de palabras, detalle por aspecto |
+| **🧠 Inferencia** | Predicción en tiempo real | Input de texto, extracción de aspectos con SpaCy, predicción con modelo fine-tuneado, visualización de resultados |
+| **🔍 Explorador** | Explorador de datos | Tabla interactiva con filtros (sentimiento, aspecto, confianza, búsqueda de texto), exportar a CSV |
+
+### Performance
+
+- **Parquets**: Cargados con `@st.cache_data` (solo se leen una vez)
+- **Modelo fine-tuneado**: Cargado con `@st.cache_resource` solo en página de inferencia (lazy loading, ~435MB)
+- **SpaCy**: Cargado con `@st.cache_resource` solo cuando se necesita
+
+---
+
 ## Próximos Pasos
 
 1. Ejecutar el notebook completo con `SAMPLE_SIZE = 50000` para procesar todo el dataset.
-2. Desarrollar dashboard en **Streamlit** consumiendo `aspectos_sentimientos_final.parquet`.
-3. Visualizaciones sugeridas:
-   - Distribución de aspectos más mencionados
-   - Nube de adjetivos por sentimiento
-   - Evolución de polaridad por reseña
-   - Comparación `sentiment_original` vs `sentimiento_bert`
+2. Ejecutar el dashboard de Streamlit para explorar los resultados.
+3. Extender el dashboard con nuevas visualizaciones según necesidad.

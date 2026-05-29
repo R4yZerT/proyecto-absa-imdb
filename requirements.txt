@@ -8,3 +8,7 @@ kaggle
 datasets
 accelerate
 evaluate
+streamlit
+plotly
+wordcloud
+matplotlib
