@@ -1,10 +1,13 @@
 """
 Módulo de análisis de sentimiento con Transformers (BERT/RoBERTa).
 Inferencia optimizada en GPU usando procesamiento por lotes.
+Soporta modelos pre-entrenados y modelos fine-tuneados localmente.
 """
 
 import logging
-from typing import List, Dict
+from typing import List, Dict, Optional
+from pathlib import Path
+import json
 import torch
 from transformers import pipeline
 
@@ -20,8 +23,11 @@ def configurar_pipeline_sentimiento(
     """
     Configura el pipeline de Hugging Face para análisis de sentimiento.
     
+    Acepta tanto modelos del Hugging Face Hub como rutas locales
+    a modelos fine-tuneados.
+    
     Args:
-        modelo: Ruta o nombre del modelo en Hugging Face Hub.
+        modelo: Ruta local o nombre del modelo en Hugging Face Hub.
         device: 0 para GPU, -1 para CPU.
         batch_size: Tamaño de lote para inferencia.
         max_length: Longitud máxima de tokens (truncamiento).
@@ -46,6 +52,58 @@ def configurar_pipeline_sentimiento(
     )
     
     return classifier
+
+
+def cargar_configuracion_modelo_finetuneado(
+    ruta_modelo: str
+) -> Optional[Dict]:
+    """
+    Carga la configuración de labels de un modelo fine-tuneado.
+    
+    Args:
+        ruta_modelo: Ruta al directorio del modelo fine-tuneado.
+    
+    Returns:
+        Diccionario con configuración de labels o None si no existe.
+    """
+    config_path = Path(ruta_modelo) / "label_config.json"
+    
+    if not config_path.exists():
+        logger.warning(f"No se encontró label_config.json en {ruta_modelo}")
+        return None
+    
+    with open(config_path, 'r') as f:
+        config = json.load(f)
+    
+    logger.info(f"Configuración cargada: {config.get('base_model', 'unknown')}")
+    return config
+
+
+def obtener_mapeo_sentimientos(
+    ruta_modelo: Optional[str] = None
+) -> Dict[str, str]:
+    """
+    Obtiene el mapeo de labels según el tipo de modelo.
+    
+    Para modelos fine-tuneados, lee label_config.json.
+    Para modelos base (robertuito), usa mapeo por defecto.
+    
+    Args:
+        ruta_modelo: Ruta al modelo fine-tuneado (opcional).
+    
+    Returns:
+        Diccionario de mapeo de labels.
+    """
+    if ruta_modelo:
+        config = cargar_configuracion_modelo_finetuneado(ruta_modelo)
+        if config and 'id2label' in config:
+            return {f"LABEL_{k}": v for k, v in config['id2label'].items()}
+    
+    return {
+        "POS": "positive",
+        "NEG": "negative",
+        "NEU": "neutral"
+    }
 
 
 def analizar_sentimiento_lote(

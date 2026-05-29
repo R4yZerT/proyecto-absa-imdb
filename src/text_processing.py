@@ -112,36 +112,48 @@ def extraer_fragmentos_para_bert(
     textos: List[str],
     ids: List[int],
     nlp: spacy.Language,
-    batch_size: int = 256
+    batch_size: int = 256,
+    incluir_texto_completo: bool = False
 ) -> List[Dict]:
     """
     Función orquestadora que une textos con sus IDs y extrae fragmentos
     listos para enviar al modelo BERT de sentimiento.
+    
+    Usa nlp.pipe una sola vez para eficiencia.
     
     Args:
         textos: Lista de reseñas en español.
         ids: Lista de identificadores de reseñas.
         nlp: Modelo SpaCy cargado.
         batch_size: Tamaño de lote para procesamiento.
+        incluir_texto_completo: Si True, incluye el texto original (consume más memoria).
     
     Returns:
         Lista de diccionarios con metadata completa por aspecto.
     """
     resultados = []
     
-    for review_id, doc, aspectos in zip(
-        ids, 
-        nlp.pipe(textos, batch_size=batch_size),
-        procesar_textos_spacy(textos, nlp, batch_size)
-    ):
-        for aspecto in aspectos:
-            resultados.append({
-                "review_id": review_id,
-                "aspecto": aspecto["aspecto_lematizado"],
-                "adjetivo": aspecto["adjetivo"],
-                "adjetivo_lematizado": aspecto["adjetivo_lematizado"],
-                "fragmento": aspecto["fragmento"],
-                "texto_completo": doc.text
-            })
+    for review_id, doc in zip(ids, nlp.pipe(textos, batch_size=batch_size)):
+        try:
+            if not doc or len(doc.text.strip()) == 0:
+                continue
+            
+            aspectos = extraer_aspectos_adjetivos(doc)
+            
+            for aspecto in aspectos:
+                registro = {
+                    "review_id": review_id,
+                    "aspecto": aspecto["aspecto_lematizado"],
+                    "adjetivo": aspecto["adjetivo"],
+                    "adjetivo_lematizado": aspecto["adjetivo_lematizado"],
+                    "fragmento": aspecto["fragmento"],
+                }
+                if incluir_texto_completo:
+                    registro["texto_completo"] = doc.text
+                resultados.append(registro)
+        
+        except Exception as e:
+            logger.error(f"Error procesando review_id={review_id}: {str(e)}")
+            continue
     
     return resultados

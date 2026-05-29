@@ -1,0 +1,10 @@
+pandas
+pyarrow
+spacy
+transformers
+torch
+tqdm
+kaggle
+datasets
+accelerate
+evaluate
