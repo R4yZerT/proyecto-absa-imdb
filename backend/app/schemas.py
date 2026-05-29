@@ -110,3 +110,44 @@ class WordCloudResponse(BaseModel):
 # ---------------------------------------------------------------------------
 class AspectListResponse(BaseModel):
     items: List[str]
+
+
+# ---------------------------------------------------------------------------
+# Esquemas para aspectos de una reseña individual
+# ---------------------------------------------------------------------------
+class ReviewAspectItem(BaseModel):
+    aspect_lemma: str
+    adjetivo: str
+    sentiment_label: str
+    confidence: float
+
+
+class ReviewAspectsResponse(BaseModel):
+    review_id: int
+    items: List[ReviewAspectItem]
+
+
+# ---------------------------------------------------------------------------
+# Esquemas para distribución de confianza
+# ---------------------------------------------------------------------------
+class ConfidenceBinItem(BaseModel):
+    bin_label: str
+    count: int
+
+
+class ConfidenceDistributionResponse(BaseModel):
+    items: List[ConfidenceBinItem]
+
+
+# ---------------------------------------------------------------------------
+# Esquemas para aspectos polarizados
+# ---------------------------------------------------------------------------
+class PolarizedAspectItem(BaseModel):
+    aspect_lemma: str
+    positive_count: int
+    negative_count: int
+    polarization_score: float
+
+
+class PolarizedAspectsResponse(BaseModel):
+    items: List[PolarizedAspectItem]

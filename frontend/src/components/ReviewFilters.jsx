@@ -1,13 +1,12 @@
 /**
  * Controles de filtrado avanzados para la vista de Reseñas.
  * Incluye filtros por sentimiento, rango de fechas, aspecto específico y nivel de confianza.
- * Componente 100% controlado: recibe estado vía props y notifica cambios inmediatamente.
  */
-import { Filter, X } from 'lucide-react';
+import { Filter, X, Lock } from 'lucide-react';
 
 const SENTIMENTS = [
   { key: 'positivo', label: 'Positivo', color: 'bg-emerald-500', ring: 'ring-emerald-500' },
-  { key: 'neutral', label: 'Neutral', color: 'bg-slate-400', ring: 'ring-slate-400' },
+  { key: 'neutral', label: 'Neutral', color: 'bg-slate-400', ring: 'ring-slate-400', disabled: true },
   { key: 'negativo', label: 'Negativo', color: 'bg-rose-500', ring: 'ring-rose-500' },
 ];
 
@@ -65,6 +64,19 @@ export default function ReviewFilters({
           <div className="flex flex-wrap gap-2">
             {SENTIMENTS.map((s) => {
               const active = filters.sentiments.includes(s.key);
+              if (s.disabled) {
+                return (
+                  <button
+                    key={s.key}
+                    disabled
+                    className="flex cursor-not-allowed items-center gap-1.5 rounded-full border border-slate-100 bg-slate-50 px-3 py-1.5 text-xs font-medium text-slate-400 opacity-60 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-500"
+                    title="No hay datos neutrales en el dataset"
+                  >
+                    <span className={`inline-block h-2 w-2 rounded-full ${s.color} opacity-50`} />
+                    {s.label}
+                  </button>
+                );
+              }
               return (
                 <button
                   key={s.key}
@@ -103,28 +115,38 @@ export default function ReviewFilters({
           </select>
         </div>
 
-        {/* Filtro por Rango de Fechas */}
+        {/* Filtro por Rango de Fechas — deshabilitado visualmente */}
         <div>
-          <label className="mb-2 block text-xs font-medium text-slate-500 dark:text-slate-400">
+          <label className="mb-2 block text-xs font-medium text-slate-400 dark:text-slate-500">
             Rango de Fechas
           </label>
           <div className="flex items-center gap-2">
-            <input
-              type="date"
-              value={filters.dateFrom}
-              onChange={(e) => handleChange('dateFrom', e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 outline-none transition focus:border-accent focus:ring-1 focus:ring-accent dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
-            />
-            <span className="text-xs text-slate-400">-</span>
-            <input
-              type="date"
-              value={filters.dateTo}
-              onChange={(e) => handleChange('dateTo', e.target.value)}
-              className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs text-slate-700 outline-none transition focus:border-accent focus:ring-1 focus:ring-accent dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
-            />
+            <div className="relative flex-1">
+              <input
+                type="date"
+                disabled
+                className="w-full cursor-not-allowed rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-400 outline-none dark:border-slate-700 dark:bg-slate-900"
+              />
+              <Lock
+                size={12}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300"
+              />
+            </div>
+            <span className="text-xs text-slate-300">-</span>
+            <div className="relative flex-1">
+              <input
+                type="date"
+                disabled
+                className="w-full cursor-not-allowed rounded-lg border border-slate-100 bg-slate-50 px-3 py-2 text-xs text-slate-400 outline-none dark:border-slate-700 dark:bg-slate-900"
+              />
+              <Lock
+                size={12}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-300"
+              />
+            </div>
           </div>
           <p className="mt-1 text-[10px] text-slate-400 dark:text-slate-500">
-            Nota: requiere columna de fecha en el dataset.
+            Próximamente: el dataset no contiene fechas.
           </p>
         </div>
 

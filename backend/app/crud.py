@@ -5,7 +5,7 @@ Todas las funciones son asíncronas para no bloquear el event loop de FastAPI.
 
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_, desc
+from sqlalchemy import select, func, and_, desc, case, Float
 from sqlalchemy.orm import selectinload
 
 from backend.app.models import Review, Aspect
@@ -20,6 +20,12 @@ from backend.app.schemas import (
     WordCloudItem,
     WordCloudResponse,
     AspectListResponse,
+    ReviewAspectItem,
+    ReviewAspectsResponse,
+    ConfidenceBinItem,
+    ConfidenceDistributionResponse,
+    PolarizedAspectItem,
+    PolarizedAspectsResponse,
 )
 
 
@@ -268,6 +274,137 @@ async def get_reviews(
         limit=limit,
         items=[ReviewResponse.model_validate(r) for r in reviews],
     )
+
+
+# ---------------------------------------------------------------------------
+# Aspectos de una reseña individual
+# ---------------------------------------------------------------------------
+async def get_review_aspects(
+    db: AsyncSession, review_id: int
+) -> ReviewAspectsResponse:
+    """
+    Retorna los aspectos extraídos de una reseña específica.
+    """
+    stmt = (
+        select(Aspect)
+        .where(Aspect.review_id == review_id)
+        .order_by(Aspect.confidence.desc())
+    )
+    result = await db.execute(stmt)
+    aspects = result.scalars().all()
+
+    items = [
+        ReviewAspectItem(
+            aspect_lemma=a.aspect_lemma,
+            adjetivo=a.adjetivo,
+            sentiment_label=a.sentiment_label,
+            confidence=round(a.confidence, 4),
+        )
+        for a in aspects
+    ]
+
+    return ReviewAspectsResponse(review_id=review_id, items=items)
+
+
+# ---------------------------------------------------------------------------
+# Distribución de confianza (histograma)
+# ---------------------------------------------------------------------------
+async def get_confidence_distribution(db: AsyncSession) -> ConfidenceDistributionResponse:
+    """
+    Retorna la distribución de confianza del modelo en bins predefinidos.
+    """
+    bins = [
+        (0.50, 0.60, "50-60%"),
+        (0.60, 0.70, "60-70%"),
+        (0.70, 0.80, "70-80%"),
+        (0.80, 0.90, "80-90%"),
+        (0.90, 1.00, "90-100%"),
+    ]
+
+    items = []
+    for low, high, label in bins:
+        count_stmt = (
+            select(func.count(Aspect.id))
+            .where(Aspect.confidence >= low, Aspect.confidence < high)
+        )
+        cnt = await db.scalar(count_stmt) or 0
+        items.append(ConfidenceBinItem(bin_label=label, count=cnt))
+
+    return ConfidenceDistributionResponse(items=items)
+
+
+# ---------------------------------------------------------------------------
+# Aspectos más polarizados
+# ---------------------------------------------------------------------------
+async def get_polarized_aspects(
+    db: AsyncSession, limit: int = 5
+) -> PolarizedAspectsResponse:
+    """
+    Retorna los aspectos con mayor polarización (mayor diferencia
+    entre sentimientos positivos y negativos), ordenados por score.
+    """
+    subq = (
+        select(
+            Aspect.aspect_lemma,
+            Aspect.sentiment_label,
+            func.count(Aspect.id).label("cnt"),
+        )
+        .group_by(Aspect.aspect_lemma, Aspect.sentiment_label)
+        .subquery()
+    )
+
+    # Totales por aspecto
+    total_sub = (
+        select(
+            subq.c.aspect_lemma,
+            func.sum(subq.c.cnt).label("total"),
+        )
+        .group_by(subq.c.aspect_lemma)
+        .having(func.sum(subq.c.cnt) >= 10)  # requiere al menos 10 menciones
+        .subquery()
+    )
+
+    # Conteos por sentimiento
+    pos_sub = (
+        select(subq.c.aspect_lemma, subq.c.cnt.label("pos"))
+        .where(subq.c.sentiment_label == "positivo")
+        .subquery()
+    )
+    neg_sub = (
+        select(subq.c.aspect_lemma, subq.c.cnt.label("neg"))
+        .where(subq.c.sentiment_label == "negativo")
+        .subquery()
+    )
+
+    stmt = (
+        select(
+            total_sub.c.aspect_lemma,
+            func.coalesce(pos_sub.c.pos, 0).label("positive_count"),
+            func.coalesce(neg_sub.c.neg, 0).label("negative_count"),
+            (
+                func.abs(func.coalesce(pos_sub.c.pos, 0) - func.coalesce(neg_sub.c.neg, 0))
+                / func.cast(total_sub.c.total, Float)
+            ).label("polarization_score"),
+        )
+        .select_from(total_sub)
+        .join(pos_sub, total_sub.c.aspect_lemma == pos_sub.c.aspect_lemma, isouter=True)
+        .join(neg_sub, total_sub.c.aspect_lemma == neg_sub.c.aspect_lemma, isouter=True)
+        .order_by(desc("polarization_score"))
+        .limit(limit)
+    )
+
+    rows = await db.execute(stmt)
+    items = [
+        PolarizedAspectItem(
+            aspect_lemma=row.aspect_lemma,
+            positive_count=row.positive_count,
+            negative_count=row.negative_count,
+            polarization_score=round(row.polarization_score, 4),
+        )
+        for row in rows.all()
+    ]
+
+    return PolarizedAspectsResponse(items=items)
 
 
 # ---------------------------------------------------------------------------

@@ -1,10 +1,77 @@
 /**
- * Lista paginada de reseñas con filtros aplicados.
- * Muestra skeleton rows durante la carga y maneja errores gracefully.
+ * Lista paginada de reseñas con detalles expandibles.
+ * Muestra texto completo, aspectos detectados con confianza, y paginación.
  */
-import { ChevronLeft, ChevronRight, AlertTriangle } from 'lucide-react';
+import { useState, useCallback } from 'react';
+import { ChevronLeft, ChevronRight, AlertTriangle, ChevronDown, ChevronUp, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { useFetch } from '../hooks/useApi';
+
+function ReviewAspects({ reviewId }) {
+  const { data, loading } = useFetch(`/reviews/${reviewId}/aspects`);
+  const aspects = data?.items || [];
+
+  if (loading) {
+    return (
+      <div className="mt-3 space-y-2">
+        {[...Array(3)].map((_, i) => (
+          <div key={i} className="h-6 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
+        ))}
+      </div>
+    );
+  }
+
+  if (aspects.length === 0) return null;
+
+  return (
+    <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900/50">
+      <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+        Aspectos detectados ({aspects.length})
+      </p>
+      <div className="flex flex-wrap gap-2">
+        {aspects.map((a, idx) => (
+          <span
+            key={`${a.aspect_lemma}-${idx}`}
+            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium ${
+              a.sentiment_label === 'positivo'
+                ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:ring-emerald-800'
+                : a.sentiment_label === 'negativo'
+                ? 'bg-rose-50 text-rose-700 ring-1 ring-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:ring-rose-800'
+                : 'bg-slate-50 text-slate-600 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-400'
+            }`}
+            title={`Confianza: ${(a.confidence * 100).toFixed(1)}%`}
+          >
+            {a.sentiment_label === 'positivo' ? (
+              <ThumbsUp size={10} />
+            ) : a.sentiment_label === 'negativo' ? (
+              <ThumbsDown size={10} />
+            ) : null}
+            <span>{a.aspect_lemma}</span>
+            <span className="text-[9px] opacity-70">{a.adjetivo}</span>
+            <span className="text-[9px] font-bold opacity-60">
+              {(a.confidence * 100).toFixed(0)}%
+            </span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 export default function ReviewList({ data, loading, error, skip, limit, onPageChange }) {
+  const [expandedIds, setExpandedIds] = useState(new Set());
+
+  const toggleExpand = useCallback((id) => {
+    setExpandedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) {
+        next.delete(id);
+      } else {
+        next.add(id);
+      }
+      return next;
+    });
+  }, []);
+
   if (error) {
     return (
       <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-rose-200 bg-rose-50 p-8 text-rose-700 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-400">
@@ -40,31 +107,43 @@ export default function ReviewList({ data, loading, error, skip, limit, onPageCh
         </div>
       ) : (
         <>
-          <div className="max-h-96 overflow-y-auto pr-1">
+          <div className="max-h-[32rem] overflow-y-auto pr-1">
             <ul className="divide-y divide-slate-100 dark:divide-slate-800">
-              {reviews.map((review) => (
-                <li key={review.id} className="py-4">
-                  <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
-                    {review.review_text.length > 200
-                      ? review.review_text.slice(0, 200) + '...'
-                      : review.review_text}
-                  </p>
-                  <div className="mt-2 flex items-center gap-2">
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        review.original_sentiment === 'positivo' || review.original_sentiment === 'positive'
-                          ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                          : review.original_sentiment === 'negativo' || review.original_sentiment === 'negative'
-                          ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
-                          : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
-                      }`}
-                    >
-                      {review.original_sentiment}
-                    </span>
-                    <span className="text-xs text-slate-400">ID: {review.id}</span>
-                  </div>
-                </li>
-              ))}
+              {reviews.map((review) => {
+                const isExpanded = expandedIds.has(review.id);
+                return (
+                  <li key={review.id} className="py-4">
+                    <div className="flex items-start justify-between gap-3">
+                      <p className="flex-1 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
+                        {review.review_text}
+                      </p>
+                      <button
+                        onClick={() => toggleExpand(review.id)}
+                        className="mt-0.5 flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-slate-400 transition hover:bg-slate-50 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+                        aria-label={isExpanded ? 'Colapsar detalles' : 'Expandir detalles'}
+                      >
+                        {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                        Detalles
+                      </button>
+                    </div>
+                    <div className="mt-2 flex items-center gap-2">
+                      <span
+                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+                          review.original_sentiment === 'positivo' || review.original_sentiment === 'positive'
+                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
+                            : review.original_sentiment === 'negativo' || review.original_sentiment === 'negative'
+                            ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
+                            : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                        }`}
+                      >
+                        {review.original_sentiment}
+                      </span>
+                      <span className="text-xs text-slate-400">ID: {review.id}</span>
+                    </div>
+                    {isExpanded && <ReviewAspects reviewId={review.id} />}
+                  </li>
+                );
+              })}
               {reviews.length === 0 && (
                 <li className="py-8 text-center text-sm text-slate-400">
                   No se encontraron reseñas para los filtros seleccionados.

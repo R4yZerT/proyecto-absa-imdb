@@ -10,6 +10,9 @@ import Sidebar from './components/Sidebar';
 import KPIBar from './components/KPIBar';
 import AspectBarChart from './components/AspectBarChart';
 import WordCloud from './components/WordCloud';
+import TopWordsList from './components/TopWordsList';
+import ConfidenceChart from './components/ConfidenceChart';
+import PolarizedAspects from './components/PolarizedAspects';
 import ReviewList from './components/ReviewList';
 import ReviewFilters from './components/ReviewFilters';
 import ThemeToggle from './components/ThemeToggle';
@@ -34,6 +37,10 @@ export default function App() {
   const { data: topAspects } = useFetch('/aspects/top', { limit: 10 });
   const { data: wordsData, loading: loadingWords } = useFetch('/words/top', { limit: 60 });
 
+  // Datos adicionales para el dashboard
+  const { data: confidenceData, loading: loadingConfidence } = useFetch('/confidence/distribution');
+  const { data: polarizedData, loading: loadingPolarized } = useFetch('/aspects/polarized');
+
   // Lista de aspectos para el dropdown de filtros
   const { data: aspectsList, loading: loadingAspectsList } = useFetch('/aspects/list');
 
@@ -44,7 +51,6 @@ export default function App() {
     [selectedAspect]
   );
 
-  // Fallback a distribución global resumida desde summary si no hay aspecto seleccionado
   // Reviews filtradas por aspecto seleccionado y filtros avanzados
   const reviewParams = useMemo(() => {
     const sentiment =
@@ -165,6 +171,19 @@ export default function App() {
                 </button>
               </div>
             )}
+
+            {/* Paneles adicionales: Top Adjetivos + Confianza + Polarización */}
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+              <div>
+                <TopWordsList data={wordsData?.items || []} loading={loadingWords} />
+              </div>
+              <div>
+                <ConfidenceChart data={confidenceData?.items || []} loading={loadingConfidence} />
+              </div>
+              <div>
+                <PolarizedAspects data={polarizedData?.items || []} loading={loadingPolarized} />
+              </div>
+            </div>
           </div>
         )}
 

@@ -19,6 +19,9 @@ from backend.app.schemas import (
     ReviewListResponse,
     WordCloudResponse,
     AspectListResponse,
+    ReviewAspectsResponse,
+    ConfidenceDistributionResponse,
+    PolarizedAspectsResponse,
 )
 from backend.app import crud
 
@@ -114,6 +117,21 @@ async def api_aspect_distribution(
         raise HTTPException(status_code=500, detail=f"Error al obtener distribución: {exc}")
 
 
+@app.get("/api/v1/aspects/polarized", response_model=PolarizedAspectsResponse)
+async def api_polarized_aspects(
+    limit: int = Query(5, ge=1, le=20, description="Número de aspectos polarizados a retornar"),
+    db: AsyncSession = Depends(get_async_db),
+):
+    """
+    Retorna los aspectos con mayor polarización (mayor diferencia
+    positivo vs negativo), útiles para identificar temas controversiales.
+    """
+    try:
+        return await crud.get_polarized_aspects(db, limit=limit)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Error al obtener aspectos polarizados: {exc}")
+
+
 @app.get("/api/v1/words/top", response_model=WordCloudResponse)
 async def api_top_words(
     limit: int = Query(50, ge=1, le=200, description="Número máximo de palabras a retornar"),
@@ -127,6 +145,19 @@ async def api_top_words(
         return await crud.get_top_words(db, limit=limit)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Error al obtener palabras: {exc}")
+
+
+@app.get("/api/v1/confidence/distribution", response_model=ConfidenceDistributionResponse)
+async def api_confidence_distribution(
+    db: AsyncSession = Depends(get_async_db),
+):
+    """
+    Retorna la distribución de confianza del modelo en bins predefinidos.
+    """
+    try:
+        return await crud.get_confidence_distribution(db)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Error al obtener distribución de confianza: {exc}")
 
 
 @app.get("/api/v1/reviews", response_model=ReviewListResponse)
@@ -158,3 +189,18 @@ async def api_reviews(
         )
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Error al obtener reseñas: {exc}")
+
+
+@app.get("/api/v1/reviews/{review_id}/aspects", response_model=ReviewAspectsResponse)
+async def api_review_aspects(
+    review_id: int,
+    db: AsyncSession = Depends(get_async_db),
+):
+    """
+    Retorna los aspectos extraídos de una reseña específica,
+    incluyendo adjetivo, sentimiento y confianza del modelo.
+    """
+    try:
+        return await crud.get_review_aspects(db, review_id=review_id)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Error al obtener aspectos de la reseña: {exc}")
