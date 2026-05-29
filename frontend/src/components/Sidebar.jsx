@@ -2,12 +2,13 @@
  * Sidebar minimalista con navegación funcional.
  * Se oculta en móvil.
  */
-import { Film, BarChart3, MessageSquare, Settings } from 'lucide-react';
+import { Film, BarChart3, MessageSquare, Sparkles, Settings } from 'lucide-react';
 
 export default function Sidebar({ activeView, onViewChange }) {
   const navItems = [
     { key: 'dashboard', label: 'Dashboard', icon: BarChart3 },
     { key: 'reviews', label: 'Reseñas', icon: MessageSquare },
+    { key: 'analyze', label: 'Analizar', icon: Sparkles },
   ];
 
   return (

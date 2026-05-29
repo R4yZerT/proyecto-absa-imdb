@@ -5,9 +5,9 @@
 export default function TopWordsList({ data, loading }) {
   if (loading) {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-850">
+      <div className="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-850">
         <div className="mb-3 h-4 w-32 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
-        <div className="space-y-2">
+        <div className="flex-1 space-y-2">
           {[...Array(8)].map((_, i) => (
             <div key={i} className="h-8 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
           ))}
@@ -19,11 +19,11 @@ export default function TopWordsList({ data, loading }) {
   const items = data?.slice(0, 10) || [];
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-850">
+    <div className="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-850">
       <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
         Top Adjetivos
       </h3>
-      <ul className="space-y-1.5">
+      <ul className="flex-1 space-y-1.5 overflow-y-auto">
         {items.map((item, index) => (
           <li
             key={item.word}

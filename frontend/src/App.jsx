@@ -15,6 +15,7 @@ import ConfidenceChart from './components/ConfidenceChart';
 import PolarizedAspects from './components/PolarizedAspects';
 import ReviewList from './components/ReviewList';
 import ReviewFilters from './components/ReviewFilters';
+import LiveAnalysis from './components/LiveAnalysis';
 import ThemeToggle from './components/ThemeToggle';
 
 export default function App() {
@@ -107,7 +108,11 @@ export default function App() {
         {/* Header */}
         <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-6 dark:border-slate-800 dark:bg-slate-950">
           <h1 className="text-lg font-bold tracking-tight">
-            {activeView === 'dashboard' ? 'Dashboard' : 'Reseñas'}
+            {activeView === 'dashboard'
+              ? 'Dashboard'
+              : activeView === 'reviews'
+              ? 'Reseñas'
+              : 'Analizar'}
           </h1>
           <div className="flex items-center gap-3">
             <ThemeToggle />
@@ -123,15 +128,15 @@ export default function App() {
             <KPIBar summary={summary} loading={loadingSummary} />
 
             {/* Gráficos: Top Aspectos + Nube de Palabras */}
-            <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-              <div className="lg:col-span-2">
+            <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+              <div className="flex flex-col">
                 <AspectBarChart
                   data={topAspects?.items || []}
                   selectedAspect={selectedAspect}
                   onSelect={handleSelectAspect}
                 />
               </div>
-              <div>
+              <div className="flex flex-col">
                 <WordCloud data={wordsData?.items || []} loading={loadingWords} />
               </div>
             </div>
@@ -147,9 +152,7 @@ export default function App() {
                     const color =
                       d.sentiment_label === 'positivo'
                         ? 'bg-emerald-500'
-                        : d.sentiment_label === 'negativo'
-                        ? 'bg-rose-500'
-                        : 'bg-slate-400';
+                        : 'bg-rose-500';
                     return (
                       <div key={d.sentiment_label} className="flex items-center gap-2">
                         <span className={`inline-block h-3 w-3 rounded-full ${color}`} />
@@ -174,13 +177,13 @@ export default function App() {
 
             {/* Paneles adicionales: Top Adjetivos + Confianza + Polarización */}
             <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-              <div>
+              <div className="flex flex-col">
                 <TopWordsList data={wordsData?.items || []} loading={loadingWords} />
               </div>
-              <div>
+              <div className="flex flex-col">
                 <ConfidenceChart data={confidenceData?.items || []} loading={loadingConfidence} />
               </div>
-              <div>
+              <div className="flex flex-col">
                 <PolarizedAspects data={polarizedData?.items || []} loading={loadingPolarized} />
               </div>
             </div>
@@ -235,6 +238,15 @@ export default function App() {
               limit={LIMIT}
               onPageChange={setSkip}
             />
+          </div>
+        )}
+
+        {/* ─────────────────────────────────────────────────────────────── */}
+        {/* VISTA ANALIZAR EN VIVO                                         */}
+        {/* ─────────────────────────────────────────────────────────────── */}
+        {activeView === 'analyze' && (
+          <div className="flex-1 p-6">
+            <LiveAnalysis />
           </div>
         )}
       </main>

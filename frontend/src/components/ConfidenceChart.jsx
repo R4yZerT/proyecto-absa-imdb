@@ -18,9 +18,9 @@ function CustomTooltip({ active, payload }) {
 export default function ConfidenceChart({ data, loading }) {
   if (loading) {
     return (
-      <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-850">
+      <div className="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-850">
         <div className="mb-3 h-4 w-40 animate-pulse rounded bg-slate-200 dark:bg-slate-700" />
-        <div className="h-40 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
+        <div className="flex-1 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
       </div>
     );
   }
@@ -30,31 +30,33 @@ export default function ConfidenceChart({ data, loading }) {
   const colors = ['#6366f1', '#8b5cf6', '#ec4899', '#f43f5e', '#f97316'];
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-850">
+    <div className="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-850">
       <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
         Distribución de Confianza
       </h3>
-      <ResponsiveContainer width="100%" height={180}>
-        <BarChart data={items} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
-          <XAxis
-            dataKey="bin_label"
-            tick={{ fontSize: 10, fill: '#94a3b8' }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <YAxis
-            tick={{ fontSize: 10, fill: '#94a3b8' }}
-            axisLine={false}
-            tickLine={false}
-          />
-          <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
-          <Bar dataKey="count" radius={[4, 4, 0, 0]}>
-            {items.map((_, index) => (
-              <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-            ))}
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+      <div className="flex-1 min-h-0">
+        <ResponsiveContainer width="100%" height="100%">
+          <BarChart data={items} margin={{ top: 5, right: 10, left: -20, bottom: 0 }}>
+            <XAxis
+              dataKey="bin_label"
+              tick={{ fontSize: 10, fill: '#94a3b8' }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <YAxis
+              tick={{ fontSize: 10, fill: '#94a3b8' }}
+              axisLine={false}
+              tickLine={false}
+            />
+            <Tooltip content={<CustomTooltip />} cursor={{ fill: 'transparent' }} />
+            <Bar dataKey="count" radius={[4, 4, 0, 0]}>
+              {items.map((_, index) => (
+                <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
+              ))}
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
+      </div>
     </div>
   );
 }

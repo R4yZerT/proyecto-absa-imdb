@@ -7,7 +7,6 @@ import { PieChart, Pie, Cell, Tooltip, ResponsiveContainer, Legend } from 'recha
 const COLORS = {
   positivo: '#10b981',
   negativo: '#f43f5e',
-  neutral: '#94a3b8',
 };
 
 export default function SentimentDonut({ data, title }) {

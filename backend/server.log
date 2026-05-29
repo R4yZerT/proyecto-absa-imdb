@@ -1,0 +1,484 @@
+INFO:     Will watch for changes in these directories: ['/Users/yeipezz/Documents/proyecto-absa-imdb']
+INFO:     Uvicorn running on http://0.0.0.0:8000 (Press CTRL+C to quit)
+INFO:     Started reloader process [50628] using WatchFiles
+INFO:     Started server process [50631]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:54738 - "GET /api/v1/aspects/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54740 - "GET /api/v1/confidence/distribution HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54742 - "GET /api/v1/aspects/polarized HTTP/1.1" 500 Internal Server Error
+INFO:     127.0.0.1:54744 - "GET /api/v1/reviews/1/aspects HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'backend/app/crud.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [50631]
+INFO:     Started server process [50747]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/crud.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [50747]
+INFO:     Started server process [50763]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:54746 - "GET /api/v1/words/top?limit=3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54748 - "GET /api/v1/aspects/polarized HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54813 - "GET /api/v1/aspects/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54816 - "GET /api/v1 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:54805 - "GET /api/v1/aspects/top?limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54804 - "GET /api/v1/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54809 - "GET /api/v1/confidence/distribution HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54819 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54811 - "GET /api/v1/aspects/polarized HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54807 - "GET /api/v1/words/top?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54853 - "GET /api/v1/aspects/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54851 - "GET /api/v1/aspects/polarized HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54843 - "GET /api/v1/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54845 - "GET /api/v1/aspects/top?limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54857 - "GET /api/v1 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:54849 - "GET /api/v1/confidence/distribution HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54859 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54847 - "GET /api/v1/words/top?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54862 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54865 - "GET /api/v1/reviews?sentiment=negativo&skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54868 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54871 - "GET /api/v1/reviews?sentiment=positivo&skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54874 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54877 - "GET /api/v1/reviews?sentiment=negativo&skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54880 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54883 - "GET /api/v1/reviews?sentiment=negativo&skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54886 - "GET /api/v1/reviews/5/aspects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54889 - "GET /api/v1/reviews/7/aspects HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54912 - "GET /api/v1/aspects/top?limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54910 - "GET /api/v1/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54923 - "GET /api/v1 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:54916 - "GET /api/v1/confidence/distribution HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54920 - "GET /api/v1/aspects/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54926 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54918 - "GET /api/v1/aspects/polarized HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54914 - "GET /api/v1/words/top?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54930 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54935 - "GET /api/v1/reviews?aspect=cantidad&skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54939 - "GET /api/v1/reviews?aspect=cantidad&skip=0&limit=10&min_confidence=0.45 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54942 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54945 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54948 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54951 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54954 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54957 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.55 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54960 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.45 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54963 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54966 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.35 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54969 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54972 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.25 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54975 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54978 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54981 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54984 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.15 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54987 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54990 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.25 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54993 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54996 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:54999 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.45 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55002 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.55 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55005 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55008 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55011 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.75 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55014 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55017 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.85 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55020 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55023 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.95 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55026 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55029 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.95 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55032 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.85 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55035 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55038 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.75 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55041 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55044 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.65 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55047 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55050 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.75 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55053 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55056 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.85 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55059 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.9 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55062 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.95 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55065 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=1 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55068 - "GET /api/v1/reviews?skip=0&limit=10&min_confidence=0.95 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55116 - "GET /api/v1/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55118 - "GET /api/v1/aspects/top?limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55133 - "GET /api/v1 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55136 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55130 - "GET /api/v1/aspects/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55126 - "GET /api/v1/confidence/distribution HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55128 - "GET /api/v1/aspects/polarized HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55122 - "GET /api/v1/words/top?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55163 - "GET /api/v1/aspects/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55153 - "GET /api/v1/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55156 - "GET /api/v1/aspects/top?limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55160 - "GET /api/v1/confidence/distribution HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55167 - "GET /api/v1 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55161 - "GET /api/v1/aspects/polarized HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55169 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55157 - "GET /api/v1/words/top?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55172 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55175 - "GET /api/v1/reviews?aspect=ausencia&skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55178 - "GET /api/v1/reviews?aspect=ausencia&skip=0&limit=10&min_confidence=0.2 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55181 - "GET /api/v1/reviews?aspect=ausencia&skip=0&limit=10&min_confidence=0.25 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55184 - "GET /api/v1/reviews?aspect=ausencia&skip=0&limit=10&min_confidence=0.3 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55187 - "GET /api/v1/reviews?aspect=ausencia&skip=0&limit=10&min_confidence=0.35 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55190 - "GET /api/v1/reviews?aspect=ausencia&skip=0&limit=10&min_confidence=0.4 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55193 - "GET /api/v1/reviews?aspect=ausencia&skip=0&limit=10&min_confidence=0.45 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55196 - "GET /api/v1/reviews?aspect=ausencia&skip=0&limit=10&min_confidence=0.5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55199 - "GET /api/v1/reviews?aspect=ausencia&skip=0&limit=10&min_confidence=0.6 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55202 - "GET /api/v1/reviews?aspect=ausencia&skip=0&limit=10&min_confidence=0.7 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55205 - "GET /api/v1/reviews?aspect=ausencia&skip=0&limit=10&min_confidence=0.75 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55208 - "GET /api/v1/reviews?aspect=ausencia&skip=0&limit=10&min_confidence=0.8 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55211 - "GET /api/v1/reviews?aspect=ausencia&skip=0&limit=10&min_confidence=0.75 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55214 - "GET /api/v1/reviews?aspect=ausencia&skip=0&limit=10&min_confidence=0.5 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55217 - "GET /api/v1/reviews?aspect=ausencia&skip=0&limit=10&min_confidence=0.05 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55220 - "GET /api/v1/reviews?aspect=ausencia&skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55223 - "GET /api/v1/reviews?aspect=ausencia&skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55264 - "GET /api/v1/aspects/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55254 - "GET /api/v1/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55257 - "GET /api/v1/aspects/top?limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55260 - "GET /api/v1/confidence/distribution HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55268 - "GET /api/v1 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55270 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55262 - "GET /api/v1/aspects/polarized HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55258 - "GET /api/v1/words/top?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55289 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55300 - "GET /api/v1/reviews/10/aspects HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'backend/app/analyzer.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [50763]
+WARNING:  WatchFiles detected changes in 'backend/app/analyzer.py'. Reloading...
+INFO:     Started server process [53689]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Started server process [53698]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/analyzer.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [53698]
+INFO:     Started server process [53706]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/schemas.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [53706]
+INFO:     Started server process [53736]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [53736]
+INFO:     Started server process [53776]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/schemas.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [53776]
+INFO:     Started server process [53785]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [53785]
+INFO:     Started server process [53794]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [53794]
+INFO:     Started server process [53806]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [53806]
+INFO:     Started server process [53831]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:55341 - "GET /api/v1/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55342 - "GET /api/v1/aspects/top?limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55346 - "GET /api/v1/confidence/distribution HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55352 - "GET /api/v1 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55349 - "GET /api/v1/aspects/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55348 - "GET /api/v1/aspects/polarized HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55355 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55344 - "GET /api/v1/words/top?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55358 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+/Users/yeipezz/Documents/proyecto-absa-imdb/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+CUDA no disponible. Forzando CPU.
+Device set to use cpu
+INFO:     127.0.0.1:55361 - "POST /api/v1/analyze HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'pipeline/sentiment_analysis.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [53831]
+INFO:     Started server process [54652]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'pipeline/sentiment_analysis.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54652]
+INFO:     Started server process [54690]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/analyzer.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54690]
+WARNING:  WatchFiles detected changes in 'pipeline/sentiment_analysis.py'. Reloading...
+INFO:     Started server process [54739]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     Started server process [54750]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/analyzer.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54750]
+INFO:     Started server process [54757]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'pipeline/sentiment_analysis.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54757]
+INFO:     Started server process [54762]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/crud.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54762]
+INFO:     Started server process [54768]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/crud.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54768]
+INFO:     Started server process [54800]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/crud.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54800]
+INFO:     Started server process [54823]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/crud.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54823]
+INFO:     Started server process [54831]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/crud.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54831]
+INFO:     Started server process [54838]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/crud.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54838]
+INFO:     Started server process [54857]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/schemas.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54857]
+INFO:     Started server process [54894]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/crud.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54894]
+INFO:     Started server process [54903]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/schemas.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54903]
+INFO:     Started server process [54908]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54908]
+INFO:     Started server process [54939]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54939]
+INFO:     Started server process [54962]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [54962]
+INFO:     Started server process [55007]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [55007]
+INFO:     Started server process [55012]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/main.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [55012]
+INFO:     Started server process [55047]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:55386 - "GET /api/v1/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55400 - "GET /api/v1/aspects/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55403 - "GET /api/v1 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55388 - "GET /api/v1/aspects/top?limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55396 - "GET /api/v1/confidence/distribution HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55398 - "GET /api/v1/aspects/polarized HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55406 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55394 - "GET /api/v1/words/top?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55423 - "GET /api/v1/summary HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55424 - "GET /api/v1/aspects/top?limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55432 - "GET /api/v1/aspects/list HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55436 - "GET /api/v1 HTTP/1.1" 404 Not Found
+INFO:     127.0.0.1:55430 - "GET /api/v1/confidence/distribution HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55431 - "GET /api/v1/aspects/polarized HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55438 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55428 - "GET /api/v1/words/top?limit=60 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55443 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+/Users/yeipezz/Documents/proyecto-absa-imdb/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+CUDA no disponible. Forzando CPU.
+Device set to use cpu
+INFO:     127.0.0.1:55446 - "POST /api/v1/analyze HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55451 - "POST /api/v1/analyze HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55457 - "POST /api/v1/analyze HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55471 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55474 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55477 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'pipeline/sentiment_analysis.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [55047]
+INFO:     Started server process [55753]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:55480 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+WARNING:  WatchFiles detected changes in 'pipeline/sentiment_analysis.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [55753]
+INFO:     Started server process [55769]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+/Users/yeipezz/Documents/proyecto-absa-imdb/.venv/lib/python3.9/site-packages/urllib3/__init__.py:35: NotOpenSSLWarning: urllib3 v2 only supports OpenSSL 1.1.1+, currently the 'ssl' module is compiled with 'LibreSSL 2.8.3'. See: https://github.com/urllib3/urllib3/issues/3020
+  warnings.warn(
+CUDA no disponible. Forzando CPU.
+Device set to use cpu
+WARNING:  WatchFiles detected changes in 'pipeline/sentiment_analysis.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for connections to close. (CTRL+C to force quit)
+INFO:     127.0.0.1:55483 - "POST /api/v1/analyze HTTP/1.1" 200 OK
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [55769]
+INFO:     Started server process [55798]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'pipeline/sentiment_analysis.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [55798]
+INFO:     Started server process [55806]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'pipeline/sentiment_analysis.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [55806]
+INFO:     Started server process [55813]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/analyzer.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [55813]
+INFO:     Started server process [55839]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+WARNING:  WatchFiles detected changes in 'backend/app/analyzer.py'. Reloading...
+INFO:     Shutting down
+INFO:     Waiting for application shutdown.
+INFO:     Application shutdown complete.
+INFO:     Finished server process [55839]
+INFO:     Started server process [55879]
+INFO:     Waiting for application startup.
+INFO:     Application startup complete.
+INFO:     127.0.0.1:55488 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55491 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55501 - "GET /api/v1/reviews?skip=0&limit=10 HTTP/1.1" 200 OK
+INFO:     127.0.0.1:55504 - "GET /api/v1/reviews?aspect=entrenador&skip=0&limit=10 HTTP/1.1" 200 OK

@@ -38,12 +38,7 @@ function CustomTooltip({ active, payload }) {
           <span className="font-medium text-rose-400">Negativos:</span>{' '}
           -{p.negative_count}
         </p>
-        {p.neutral_count > 0 && (
-          <p>
-            <span className="font-medium text-slate-400">Neutros:</span>{' '}
-            {p.neutral_count}
-          </p>
-        )}
+
       </div>
     </div>
   );
@@ -52,7 +47,7 @@ function CustomTooltip({ active, payload }) {
 export default function AspectBarChart({ data, selectedAspect, onSelect }) {
   if (!data || data.length === 0) {
     return (
-      <div className="flex h-80 items-center justify-center rounded-xl border border-dashed border-slate-300 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
+      <div className="flex h-[420px] items-center justify-center rounded-xl border border-dashed border-slate-300 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-400">
         Sin datos de aspectos
       </div>
     );
@@ -72,11 +67,11 @@ export default function AspectBarChart({ data, selectedAspect, onSelect }) {
   ];
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-850">
+    <div className="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-850">
       <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
         Top Aspectos
       </h3>
-      <ResponsiveContainer width="100%" height={320}>
+      <ResponsiveContainer width="100%" height={420}>
         <BarChart
           data={data}
           layout="vertical"

@@ -57,16 +57,11 @@ class SummaryResponse(BaseModel):
     total_aspects: int
     positive_pct: float
     negative_pct: float
-    neutral_pct: float
-    avg_confidence: float
-
-
 class TopAspectItem(BaseModel):
     aspect_lemma: str
     count: int
     positive_count: int
     negative_count: int
-    neutral_count: int
 
 
 class TopAspectsResponse(BaseModel):
@@ -151,3 +146,25 @@ class PolarizedAspectItem(BaseModel):
 
 class PolarizedAspectsResponse(BaseModel):
     items: List[PolarizedAspectItem]
+
+
+# ---------------------------------------------------------------------------
+# Esquemas para análisis en vivo
+# ---------------------------------------------------------------------------
+class AnalyzeRequest(BaseModel):
+    text: str = Field(..., min_length=1, max_length=5000, description="Texto a analizar")
+
+
+class AnalyzedAspectItem(BaseModel):
+    aspect_lemma: str
+    adjetivo: str
+    adjetivo_lemma: str
+    fragmento: str
+    sentiment_label: str
+    confidence: float
+
+
+class AnalyzeResponse(BaseModel):
+    text: str
+    overall_sentiment: str
+    aspects: List[AnalyzedAspectItem]

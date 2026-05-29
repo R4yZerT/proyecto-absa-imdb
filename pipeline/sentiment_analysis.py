@@ -63,12 +63,20 @@ def cargar_configuracion_modelo_finetuneado(ruta_modelo: str) -> Optional[Dict]:
 def obtener_mapeo_sentimientos(ruta_modelo: Optional[str] = None) -> Dict[str, str]:
     """
     Obtiene el mapeo de labels según el tipo de modelo.
+    Traduce siempre los valores a español (positivo/negativo).
     """
+    # Diccionario base: modelo pysentimiento/robertuito
+    base_map = {"POS": "positivo", "NEG": "negativo"}
+
     if ruta_modelo:
         config = cargar_configuracion_modelo_finetuneado(ruta_modelo)
         if config and "id2label" in config:
-            return {f"LABEL_{k}": v for k, v in config["id2label"].items()}
-    return {"POS": "positivo", "NEG": "negativo", "NEU": "neutral"}
+            raw_map = {f"LABEL_{k}": v for k, v in config["id2label"].items()}
+            # Traducir valores del fine-tuneado (positive/negative en ingles)
+            translation = {"positive": "positivo", "negative": "negativo"}
+            return {k: translation.get(v.lower(), v.lower()) for k, v in raw_map.items()}
+
+    return base_map
 
 
 def analizar_sentimiento_lote(
@@ -116,8 +124,13 @@ def mapear_sentimientos(
     Normaliza las etiquetas de sentimiento a un formato estándar en español.
     """
     if mapping is None:
-        mapping = {"POS": "positivo", "NEG": "negativo", "NEU": "neutral"}
-    return [
-        mapping.get(r["label_original"], r["label_original"].lower())
-        for r in resultados_bert
-    ]
+        mapping = {"POS": "positivo", "NEG": "negativo"}
+
+    # Traducción de fallback para labels en ingles directos
+    fallback_translation = {"positive": "positivo", "negative": "negativo"}
+
+    normalized = []
+    for r in resultados_bert:
+        label = mapping.get(r["label_original"], r["label_original"].lower())
+        normalized.append(fallback_translation.get(label, label))
+    return normalized

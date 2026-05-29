@@ -131,9 +131,7 @@ export default function ReviewList({ data, loading, error, skip, limit, onPageCh
                         className={`rounded-full px-2 py-0.5 text-xs font-medium ${
                           review.original_sentiment === 'positivo' || review.original_sentiment === 'positive'
                             ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                            : review.original_sentiment === 'negativo' || review.original_sentiment === 'negative'
-                            ? 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
-                            : 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400'
+                            : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
                         }`}
                       >
                         {review.original_sentiment}

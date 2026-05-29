@@ -1,0 +1,14 @@
+{
+  "id2label": {
+    "1": "positive",
+    "0": "negative"
+  },
+  "label2id": {
+    "positive": 1,
+    "negative": 0
+  },
+  "base_model": "pysentimiento/robertuito-sentiment-analysis",
+  "training_samples": 4500,
+  "eval_accuracy": 0.86,
+  "eval_f1": 0.8599977599641594
+}

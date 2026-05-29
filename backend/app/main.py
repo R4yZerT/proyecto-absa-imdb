@@ -22,8 +22,11 @@ from backend.app.schemas import (
     ReviewAspectsResponse,
     ConfidenceDistributionResponse,
     PolarizedAspectsResponse,
+    AnalyzeRequest,
+    AnalyzeResponse,
 )
 from backend.app import crud
+from backend.app.analyzer import analyze_text
 
 
 # ---------------------------------------------------------------------------
@@ -73,7 +76,7 @@ async def api_summary(db: AsyncSession = Depends(get_async_db)):
 
 @app.get("/api/v1/aspects/top", response_model=TopAspectsResponse)
 async def api_top_aspects(
-    sentiment: Optional[str] = Query(None, description="Filtrar por sentimiento: positivo, negativo, neutral"),
+    sentiment: Optional[str] = Query(None, description="Filtrar por sentimiento: positivo, negativo"),
     limit: int = Query(10, ge=1, le=100, description="Número máximo de aspectos a retornar"),
     db: AsyncSession = Depends(get_async_db),
 ):
@@ -81,8 +84,8 @@ async def api_top_aspects(
     Retorna los aspectos más frecuentes, con desglose de sentimientos por aspecto.
     Permite filtrar y ordenar por un sentimiento específico.
     """
-    if sentiment and sentiment not in ("positivo", "negativo", "neutral"):
-        raise HTTPException(status_code=422, detail="sentiment debe ser positivo, negativo o neutral")
+    if sentiment and sentiment not in ("positivo", "negativo"):
+        raise HTTPException(status_code=422, detail="sentiment debe ser positivo o negativo")
     try:
         return await crud.get_top_aspects(db, sentiment=sentiment, limit=limit)
     except Exception as exc:
@@ -108,7 +111,7 @@ async def api_aspect_distribution(
     db: AsyncSession = Depends(get_async_db),
 ):
     """
-    Retorna la distribución de sentimientos (positivo/negativo/neutral)
+    Retorna la distribución de sentimientos (positivo/negativo)
     para un aspecto específico identificado por su lema.
     """
     try:
@@ -174,8 +177,8 @@ async def api_reviews(
     """
     Retorna reseñas paginadas, filtrables por aspecto, sentimiento y confianza mínima.
     """
-    if sentiment and sentiment not in ("positivo", "negativo", "neutral", "error"):
-        raise HTTPException(status_code=422, detail="sentiment debe ser positivo, negativo o neutral")
+    if sentiment and sentiment not in ("positivo", "negativo", "error"):
+        raise HTTPException(status_code=422, detail="sentiment debe ser positivo o negativo")
     try:
         return await crud.get_reviews(
             db,
@@ -204,3 +207,19 @@ async def api_review_aspects(
         return await crud.get_review_aspects(db, review_id=review_id)
     except Exception as exc:
         raise HTTPException(status_code=500, detail=f"Error al obtener aspectos de la reseña: {exc}")
+
+
+@app.post("/api/v1/analyze", response_model=AnalyzeResponse)
+async def api_analyze(payload: AnalyzeRequest):
+    """
+    Analiza un texto en vivo extrayendo aspectos y clasificando sentimiento.
+    No requiere base de datos; usa los modelos SpaCy y BERT cargados en memoria.
+    """
+    try:
+        # El análisis con transformers/spacy es CPU-bound;
+        # lo ejecutamos en un thread para no bloquear el event loop.
+        import asyncio
+        result = await asyncio.to_thread(analyze_text, payload.text)
+        return AnalyzeResponse(**result)
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=f"Error al analizar texto: {exc}")

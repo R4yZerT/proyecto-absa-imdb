@@ -51,7 +51,6 @@ async def get_summary(db: AsyncSession) -> SummaryResponse:
     total = sum(sent_counts.values()) or 1
     positive = sent_counts.get("positivo", 0)
     negative = sent_counts.get("negativo", 0)
-    neutral = sent_counts.get("neutral", 0)
 
     # Confianza promedio
     avg_conf = await db.scalar(select(func.avg(Aspect.confidence)))
@@ -61,7 +60,6 @@ async def get_summary(db: AsyncSession) -> SummaryResponse:
         total_aspects=total_aspects or 0,
         positive_pct=round(positive / total * 100, 2),
         negative_pct=round(negative / total * 100, 2),
-        neutral_pct=round(neutral / total * 100, 2),
         avg_confidence=round(avg_conf or 0.0, 4),
     )
 
@@ -126,19 +124,16 @@ async def get_top_aspects(
                 "count": total,
                 "positive_count": 0,
                 "negative_count": 0,
-                "neutral_count": 0,
             }
         if sent == "positivo":
             grouped[aspect]["positive_count"] = cnt
         elif sent == "negativo":
             grouped[aspect]["negative_count"] = cnt
-        elif sent == "neutral":
-            grouped[aspect]["neutral_count"] = cnt
 
     items = list(grouped.values())
 
     # Si se pidió filtro por sentimiento, reordenar según conteo de ese sentimiento
-    if sentiment in ("positivo", "negativo", "neutral"):
+    if sentiment in ("positivo", "negativo"):
         key = f"{sentiment}_count"
         items.sort(key=lambda x: x[key], reverse=True)
         items = items[:limit]
@@ -168,7 +163,7 @@ async def get_aspect_distribution(
 
     total = sum(counts.values()) or 1
     distribution = []
-    for label in ("positivo", "negativo", "neutral"):
+    for label in ("positivo", "negativo"):
         cnt = counts.get(label, 0)
         distribution.append(
             AspectDistributionItem(
