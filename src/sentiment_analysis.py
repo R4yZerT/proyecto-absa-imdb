@@ -1,0 +1,124 @@
+"""
+Módulo de análisis de sentimiento con Transformers (BERT/RoBERTa).
+Inferencia optimizada en GPU usando procesamiento por lotes.
+"""
+
+import logging
+from typing import List, Dict
+import torch
+from transformers import pipeline
+
+logger = logging.getLogger(__name__)
+
+
+def configurar_pipeline_sentimiento(
+    modelo: str = "pysentimiento/robertuito-sentiment-analysis",
+    device: int = 0,
+    batch_size: int = 64,
+    max_length: int = 128
+) -> pipeline:
+    """
+    Configura el pipeline de Hugging Face para análisis de sentimiento.
+    
+    Args:
+        modelo: Ruta o nombre del modelo en Hugging Face Hub.
+        device: 0 para GPU, -1 para CPU.
+        batch_size: Tamaño de lote para inferencia.
+        max_length: Longitud máxima de tokens (truncamiento).
+    
+    Returns:
+        Pipeline de Hugging Face listo para inferencia.
+    """
+    if device >= 0 and not torch.cuda.is_available():
+        logger.warning("CUDA no disponible. Forzando CPU.")
+        device = -1
+    
+    logger.info(f"Cargando modelo: {modelo} | Dispositivo: {'GPU' if device >= 0 else 'CPU'}")
+    
+    classifier = pipeline(
+        "sentiment-analysis",
+        model=modelo,
+        tokenizer=modelo,
+        device=device,
+        truncation=True,
+        max_length=max_length,
+        batch_size=batch_size
+    )
+    
+    return classifier
+
+
+def analizar_sentimiento_lote(
+    fragmentos: List[str],
+    classifier: pipeline,
+    batch_size: int = 64
+) -> List[Dict]:
+    """
+    Clasifica el sentimiento de una lista de fragmentos de texto.
+    
+    Args:
+        fragmentos: Lista de strings (fragmentos extraídos por SpaCy).
+        classifier: Pipeline de Hugging Face configurado.
+        batch_size: Tamaño de lote para enviar a la GPU.
+    
+    Returns:
+        Lista de diccionarios con sentimiento, label y score de confianza.
+    """
+    resultados = []
+    total_fragmentos = len(fragmentos)
+    logger.info(f"Iniciando inferencia: {total_fragmentos} fragmentos, batch={batch_size}")
+    
+    for i in range(0, total_fragmentos, batch_size):
+        lote = fragmentos[i:i + batch_size]
+        
+        try:
+            predicciones = classifier(lote)
+            
+            for pred in predicciones:
+                resultados.append({
+                    "sentimiento": pred["label"],
+                    "confianza": round(pred["score"], 4),
+                    "label_original": pred["label"]
+                })
+        
+        except Exception as e:
+            logger.error(f"Error en batch {i//batch_size}: {str(e)}")
+            # Agregar valores nulos para mantener alineación
+            for _ in lote:
+                resultados.append({
+                    "sentimiento": "ERROR",
+                    "confianza": 0.0,
+                    "label_original": "ERROR"
+                })
+        
+        # Liberar memoria GPU periódicamente
+        if i % (batch_size * 10) == 0 and torch.cuda.is_available():
+            torch.cuda.empty_cache()
+    
+    logger.info(f"Inferencia completada: {len(resultados)} resultados")
+    return resultados
+
+
+def mapear_sentimientos(
+    resultados_bert: List[Dict],
+    mapping: Dict[str, str] = None
+) -> List[str]:
+    """
+    Normaliza las etiquetas de sentimiento a un formato estándar.
+    
+    Args:
+        resultados_bert: Output del pipeline de Hugging Face.
+        mapping: Diccionario de mapeo de labels.
+    
+    Returns:
+        Lista de etiquetas normalizadas.
+    """
+    if mapping is None:
+        # Mapeo por defecto para robertuito
+        mapping = {
+            "POS": "positivo",
+            "NEG": "negativo",
+            "NEU": "neutral"
+        }
+    
+    return [mapping.get(r["label_original"], r["label_original"].lower()) for r in resultados_bert]
