@@ -1,7 +1,6 @@
 /**
  * Gráfico de barras horizontales para los Top Aspectos.
- * Permite hacer clic en una barra para filtrar el resto del dashboard.
- * Incluye tooltip personalizado de alto contraste para modo oscuro.
+ * Paleta cinematografica con acentos dorados y cobrizos.
  */
 import {
   BarChart,
@@ -14,16 +13,12 @@ import {
   Cell,
 } from 'recharts';
 
-/**
- * Tooltip personalizado con texto blanco sobre fondo oscuro
- * para garantizar legibilidad perfecta en modo oscuro.
- */
 function CustomTooltip({ active, payload }) {
   if (!active || !payload || !payload.length) return null;
 
   const p = payload[0].payload;
   return (
-    <div className="rounded-lg border border-slate-600 bg-slate-900 px-4 py-3 shadow-xl">
+    <div className="rounded-xl border border-slate-700 bg-slate-900/95 px-4 py-3 shadow-2xl backdrop-blur-sm">
       <p className="mb-1 text-sm font-semibold text-white">{p.aspect_lemma}</p>
       <div className="space-y-0.5 text-xs text-slate-200">
         <p>
@@ -35,10 +30,9 @@ function CustomTooltip({ active, payload }) {
           +{p.positive_count}
         </p>
         <p>
-          <span className="font-medium text-rose-400">Negativos:</span>{' '}
+          <span className="font-medium text-crimson">Negativos:</span>{' '}
           -{p.negative_count}
         </p>
-
       </div>
     </div>
   );
@@ -53,24 +47,31 @@ export default function AspectBarChart({ data, selectedAspect, onSelect }) {
     );
   }
 
-  const palette = [
-    '#6366f1',
-    '#8b5cf6',
-    '#ec4899',
-    '#f43f5e',
-    '#f97316',
-    '#eab308',
-    '#10b981',
-    '#06b6d4',
-    '#3b82f6',
-    '#a855f7',
-  ];
+  // Paleta armonica cinematografica: gradiente continuo del indigo marca al dorado.
+  // Interpolacion lineal en RGB para una escala cohesiva y profesional.
+  function interpolateColor(color1, color2, factor) {
+    const r1 = parseInt(color1.substring(1, 3), 16);
+    const g1 = parseInt(color1.substring(3, 5), 16);
+    const b1 = parseInt(color1.substring(5, 7), 16);
+    const r2 = parseInt(color2.substring(1, 3), 16);
+    const g2 = parseInt(color2.substring(3, 5), 16);
+    const b2 = parseInt(color2.substring(5, 7), 16);
+    const r = Math.round(r1 + factor * (r2 - r1));
+    const g = Math.round(g1 + factor * (g2 - g1));
+    const b = Math.round(b1 + factor * (b2 - b1));
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  const startColor = '#4338ca'; // Indigo vibrante (marca)
+  const endColor   = '#d4af37'; // Dorado cinetico (marca)
+  const total = data.length;
+  const palette = data.map((_, i) =>
+    interpolateColor(startColor, endColor, total > 1 ? i / (total - 1) : 0)
+  );
 
   return (
-    <div className="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-850">
-      <h3 className="mb-4 text-sm font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-        Top Aspectos
-      </h3>
+    <div className="card-cinema p-4">
+      <h3 className="label-caps mb-4">Top Aspectos</h3>
       <ResponsiveContainer width="100%" height={420}>
         <BarChart
           data={data}
@@ -83,27 +84,32 @@ export default function AspectBarChart({ data, selectedAspect, onSelect }) {
           }}
           className="cursor-pointer"
         >
-          <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.2} />
+          <CartesianGrid strokeDasharray="3 3" stroke="#334155" opacity={0.15} />
           <XAxis type="number" hide />
           <YAxis
             dataKey="aspect_lemma"
             type="category"
             width={100}
-            tick={{ fontSize: 12, fill: '#94a3b8' }}
+            tick={{ fontSize: 12, fill: '#a1a1aa', fontFamily: 'DM Sans, sans-serif' }}
           />
           <Tooltip
             cursor={{ fill: 'transparent' }}
             content={<CustomTooltip />}
           />
-          <Bar dataKey="count" radius={[0, 6, 6, 0]}>
+          <Bar dataKey="count" radius={[0, 8, 8, 0]}>
             {data.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
                 fill={
                   selectedAspect === entry.aspect_lemma
-                    ? '#f43f5e'
-                    : palette[index % palette.length]
+                    ? '#e63946'
+                    : palette[index]
                 }
+                style={{
+                  filter: selectedAspect === entry.aspect_lemma
+                    ? 'drop-shadow(0 2px 6px rgba(230,57,70,0.3))'
+                    : 'none',
+                }}
               />
             ))}
           </Bar>
@@ -111,12 +117,12 @@ export default function AspectBarChart({ data, selectedAspect, onSelect }) {
       </ResponsiveContainer>
       {selectedAspect && (
         <div className="mt-2 flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
-          <span className="rounded bg-accent/10 px-2 py-1 text-accent">
+          <span className="rounded-lg bg-gold/10 px-2.5 py-1 text-gold ring-1 ring-gold/20">
             {selectedAspect}
           </span>
           <button
             onClick={() => onSelect(null)}
-            className="underline hover:text-rose-500"
+            className="underline transition hover:text-crimson"
           >
             Limpiar filtro
           </button>

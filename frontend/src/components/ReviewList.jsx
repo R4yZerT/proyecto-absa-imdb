@@ -1,6 +1,6 @@
 /**
- * Lista paginada de reseñas con detalles expandibles.
- * Muestra texto completo, aspectos detectados con confianza, y paginación.
+ * Lista paginada de resenas con detalles expandibles.
+ * Estetica cinematografica con cards refinadas y transiciones suaves.
  */
 import { useState, useCallback } from 'react';
 import { ChevronLeft, ChevronRight, AlertTriangle, ChevronDown, ChevronUp, ThumbsUp, ThumbsDown } from 'lucide-react';
@@ -14,7 +14,7 @@ function ReviewAspects({ reviewId }) {
     return (
       <div className="mt-3 space-y-2">
         {[...Array(3)].map((_, i) => (
-          <div key={i} className="h-6 animate-pulse rounded bg-slate-100 dark:bg-slate-800" />
+          <div key={i} className="h-6 animate-pulse-subtle rounded bg-slate-100 dark:bg-slate-800" />
         ))}
       </div>
     );
@@ -23,20 +23,20 @@ function ReviewAspects({ reviewId }) {
   if (aspects.length === 0) return null;
 
   return (
-    <div className="mt-3 rounded-lg border border-slate-100 bg-slate-50 p-3 dark:border-slate-800 dark:bg-slate-900/50">
-      <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-500">
+    <div className="mt-3 rounded-xl border border-slate-100 bg-slate-50/60 p-4 dark:border-slate-800 dark:bg-slate-900/40">
+      <p className="label-caps mb-2">
         Aspectos detectados ({aspects.length})
       </p>
       <div className="flex flex-wrap gap-2">
         {aspects.map((a, idx) => (
           <span
             key={`${a.aspect_lemma}-${idx}`}
-            className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[11px] font-medium ${
+            className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1 text-[11px] font-medium backdrop-blur-sm ${
               a.sentiment_label === 'positivo'
-                ? 'bg-emerald-50 text-emerald-700 ring-1 ring-emerald-200 dark:bg-emerald-900/20 dark:text-emerald-400 dark:ring-emerald-800'
+                ? 'bg-emerald-500/8 text-emerald-700 ring-1 ring-emerald-500/15 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20'
                 : a.sentiment_label === 'negativo'
-                ? 'bg-rose-50 text-rose-700 ring-1 ring-rose-200 dark:bg-rose-900/20 dark:text-rose-400 dark:ring-rose-800'
-                : 'bg-slate-50 text-slate-600 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-400'
+                ? 'bg-gradient-to-br from-red-500/12 to-red-600/8 text-red-700 ring-1 ring-red-500/15 dark:from-red-500/15 dark:to-red-600/10 dark:text-red-400 dark:ring-red-500/20'
+                : 'bg-slate-50 text-slate-600 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-700'
             }`}
             title={`Confianza: ${(a.confidence * 100).toFixed(1)}%`}
           >
@@ -74,9 +74,9 @@ export default function ReviewList({ data, loading, error, skip, limit, onPageCh
 
   if (error) {
     return (
-      <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-rose-200 bg-rose-50 p-8 text-rose-700 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-400">
+      <div className="flex flex-col items-center justify-center gap-3 rounded-xl border border-crimson/20 bg-crimson/5 p-8 text-crimson dark:border-crimson/20 dark:bg-crimson/5">
         <AlertTriangle size={32} />
-        <p className="font-medium">Error al cargar reseñas</p>
+        <p className="font-medium">Error al cargar resenas</p>
         <p className="text-sm opacity-80">{error}</p>
       </div>
     );
@@ -88,11 +88,9 @@ export default function ReviewList({ data, loading, error, skip, limit, onPageCh
   const hasNext = skip + limit < total;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-850">
+    <div className="card-cinema p-4 sm:p-5">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-          Reseñas filtradas
-        </h3>
+        <h3 className="label-caps">Resenas filtradas</h3>
         <span className="text-xs text-slate-400">{total} resultados</span>
       </div>
 
@@ -101,7 +99,7 @@ export default function ReviewList({ data, loading, error, skip, limit, onPageCh
           {[...Array(5)].map((_, i) => (
             <div
               key={i}
-              className="h-16 animate-pulse rounded-lg bg-slate-100 dark:bg-slate-800"
+              className="h-16 animate-pulse-subtle rounded-xl bg-slate-100 dark:bg-slate-800"
             />
           ))}
         </div>
@@ -112,39 +110,48 @@ export default function ReviewList({ data, loading, error, skip, limit, onPageCh
               {reviews.map((review) => {
                 const isExpanded = expandedIds.has(review.id);
                 return (
-                  <li key={review.id} className="py-4">
+                  <li key={review.id} className="py-4 transition-colors hover:bg-slate-50/50 dark:hover:bg-slate-900/30 rounded-lg px-2 -mx-2">
                     <div className="flex items-start justify-between gap-3">
                       <p className="flex-1 text-sm leading-relaxed text-slate-700 dark:text-slate-300">
                         {review.review_text}
                       </p>
                       <button
                         onClick={() => toggleExpand(review.id)}
-                        className="mt-0.5 flex shrink-0 items-center gap-1 rounded-md px-2 py-1 text-xs font-medium text-slate-400 transition hover:bg-slate-50 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
+                        className="mt-0.5 flex shrink-0 items-center gap-1 rounded-lg px-2 py-1 text-xs font-medium text-slate-400 transition hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800 dark:hover:text-slate-300"
                         aria-label={isExpanded ? 'Colapsar detalles' : 'Expandir detalles'}
                       >
                         {isExpanded ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
-                        Detalles
+                        <span className="hidden sm:inline">Detalles</span>
                       </button>
                     </div>
-                    <div className="mt-2 flex items-center gap-2">
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                          review.original_sentiment === 'positivo' || review.original_sentiment === 'positive'
-                            ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400'
-                            : 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400'
-                        }`}
-                      >
-                        {review.original_sentiment}
-                      </span>
-                      <span className="text-xs text-slate-400">ID: {review.id}</span>
-                    </div>
+                    {(() => {
+                      const sentimentLower = (review.original_sentiment || '').toString().toLowerCase();
+                      const isPos = sentimentLower === 'positivo' || sentimentLower === 'positive';
+                      const isNeg = sentimentLower === 'negativo' || sentimentLower === 'negative';
+                      return (
+                        <div className="mt-2 flex items-center gap-2">
+                          <span
+                            className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                              isPos
+                                ? 'bg-emerald-500/10 text-emerald-700 ring-1 ring-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20'
+                                : isNeg
+                                ? 'bg-gradient-to-br from-red-500/15 to-red-600/10 text-red-700 ring-1 ring-red-500/20 dark:from-red-500/20 dark:to-red-600/15 dark:text-red-400 dark:ring-red-500/25'
+                                : 'bg-slate-100 text-slate-600 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-700'
+                            }`}
+                          >
+                            {review.original_sentiment}
+                          </span>
+                          <span className="text-xs text-slate-400">ID: {review.id}</span>
+                        </div>
+                      );
+                    })()}
                     {isExpanded && <ReviewAspects reviewId={review.id} />}
                   </li>
                 );
               })}
               {reviews.length === 0 && (
                 <li className="py-8 text-center text-sm text-slate-400">
-                  No se encontraron reseñas para los filtros seleccionados.
+                  No se encontraron resenas para los filtros seleccionados.
                 </li>
               )}
             </ul>
@@ -154,17 +161,17 @@ export default function ReviewList({ data, loading, error, skip, limit, onPageCh
             <button
               onClick={() => onPageChange(skip - limit)}
               disabled={!hasPrev}
-              className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50 disabled:opacity-40 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
+              className="flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50 disabled:opacity-40 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
             >
               <ChevronLeft size={14} /> Anterior
             </button>
             <span className="text-xs text-slate-400">
-              Página {Math.floor(skip / limit) + 1} de {Math.ceil(total / limit) || 1}
+              Pagina {Math.floor(skip / limit) + 1} de {Math.ceil(total / limit) || 1}
             </span>
             <button
               onClick={() => onPageChange(skip + limit)}
               disabled={!hasNext}
-              className="flex items-center gap-1 rounded-lg border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50 disabled:opacity-40 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
+              className="flex items-center gap-1 rounded-xl border border-slate-200 px-3 py-2 text-xs font-medium text-slate-600 transition hover:bg-slate-50 disabled:opacity-40 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
             >
               Siguiente <ChevronRight size={14} />
             </button>

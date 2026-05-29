@@ -1,8 +1,6 @@
 /**
- * Módulo de análisis ABSA en vivo.
- * Permite escribir un comentario y ver la clasificación de aspectos
- * y sentimientos en tiempo real, con el mismo nivel de detalle que
- * el módulo de reseñas.
+ * Modulo de analisis ABSA en vivo.
+ * Estetica cinematografica con textarea refinada, boton dorado y cards de resultados.
  */
 import { useState, useCallback } from 'react';
 import { Send, Sparkles, AlertTriangle, ThumbsUp, ThumbsDown, Loader2 } from 'lucide-react';
@@ -10,7 +8,7 @@ import axios from 'axios';
 
 const apiClient = axios.create({
   baseURL: '/api/v1',
-  timeout: 30000, // análisis en vivo puede tardar más
+  timeout: 30000,
 });
 
 export default function LiveAnalysis() {
@@ -44,37 +42,36 @@ export default function LiveAnalysis() {
   const sentimentConfig = {
     positivo: {
       label: 'Positivo',
-      bg: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400',
+      bg: 'bg-emerald-500/10 text-emerald-700 dark:bg-emerald-500/10 dark:text-emerald-400',
       icon: ThumbsUp,
-      ring: 'ring-emerald-500',
+      ring: 'ring-emerald-500/20',
     },
     negativo: {
       label: 'Negativo',
-      bg: 'bg-rose-100 text-rose-700 dark:bg-rose-900/30 dark:text-rose-400',
+      bg: 'bg-gradient-to-br from-red-500/15 to-red-600/10 text-red-700 dark:from-red-500/20 dark:to-red-600/15 dark:text-red-400',
       icon: ThumbsDown,
-      ring: 'ring-rose-500',
+      ring: 'ring-red-500/20 dark:ring-red-400/25',
     },
-
     error: {
       label: 'Error',
-      bg: 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400',
+      bg: 'bg-amber-500/10 text-amber-700 dark:bg-amber-500/10 dark:text-amber-400',
       icon: AlertTriangle,
-      ring: 'ring-amber-500',
+      ring: 'ring-amber-500/20',
     },
   };
 
   return (
-    <div className="space-y-6">
+    <div className="mx-auto max-w-4xl space-y-6">
       {/* Header */}
-      <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-850">
+      <div className="card-cinema p-5">
         <div className="mb-4 flex items-center gap-2">
-          <Sparkles size={18} className="text-accent" />
-          <h2 className="text-sm font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-            Análisis en Vivo
-          </h2>
+          <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gold/10">
+            <Sparkles size={16} className="text-gold" />
+          </div>
+          <h2 className="label-caps">Analisis en Vivo</h2>
         </div>
         <p className="mb-4 text-xs text-slate-500 dark:text-slate-400">
-          Escribe un comentario de película en español y obtén la clasificación ABSA en tiempo real:
+          Escribe un comentario de pelicula en espanol y obten la clasificacion ABSA en tiempo real:
           aspectos detectados, adjetivos asociados, sentimiento y confianza del modelo.
         </p>
         <div className="relative">
@@ -82,8 +79,8 @@ export default function LiveAnalysis() {
             value={text}
             onChange={(e) => setText(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ej: La actuación del protagonista fue impresionante, aunque la trama se volvió un poco confusa al final..."
-            className="min-h-[140px] w-full resize-y rounded-lg border border-slate-200 bg-white px-4 py-3 text-sm leading-relaxed text-slate-700 outline-none transition placeholder:text-slate-300 focus:border-accent focus:ring-1 focus:ring-accent dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:placeholder:text-slate-600"
+            placeholder="Ej: La actuacion del protagonista fue impresionante, aunque la trama se volvio un poco confusa al final..."
+            className="min-h-[140px] w-full resize-y rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm leading-relaxed text-slate-700 outline-none transition placeholder:text-slate-300 focus:border-gold focus:ring-1 focus:ring-gold/30 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200 dark:placeholder:text-slate-600"
             maxLength={5000}
           />
           <div className="mt-2 flex items-center justify-between">
@@ -93,7 +90,7 @@ export default function LiveAnalysis() {
             <button
               onClick={handleAnalyze}
               disabled={loading || !text.trim()}
-              className="flex items-center gap-2 rounded-lg bg-accent px-4 py-2 text-xs font-semibold text-white shadow-sm transition hover:bg-accent/90 disabled:cursor-not-allowed disabled:opacity-40"
+              className="btn-primary flex items-center gap-2 rounded-xl px-5 py-2.5 text-xs font-semibold shadow-lg shadow-gold/20 disabled:cursor-not-allowed disabled:opacity-40"
             >
               {loading ? (
                 <>
@@ -113,7 +110,7 @@ export default function LiveAnalysis() {
 
       {/* Error */}
       {error && (
-        <div className="flex items-center gap-3 rounded-xl border border-rose-200 bg-rose-50 p-5 text-rose-700 dark:border-rose-900 dark:bg-rose-950/30 dark:text-rose-400">
+        <div className="flex items-center gap-3 rounded-xl border border-crimson/20 bg-crimson/5 p-5 text-crimson">
           <AlertTriangle size={20} />
           <p className="text-sm font-medium">{error}</p>
         </div>
@@ -121,12 +118,10 @@ export default function LiveAnalysis() {
 
       {/* Resultados */}
       {result && (
-        <div className="space-y-6">
+        <div className="space-y-5 animate-fade-in">
           {/* Sentimiento global */}
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-850">
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-              Sentimiento Global
-            </h3>
+          <div className="card-cinema p-5">
+            <h3 className="label-caps mb-3">Sentimiento Global</h3>
             {(() => {
               const cfg = sentimentConfig[result.overall_sentiment] || sentimentConfig.positivo;
               const Icon = cfg.icon;
@@ -148,20 +143,16 @@ export default function LiveAnalysis() {
           </div>
 
           {/* Texto analizado */}
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-850">
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-              Texto Analizado
-            </h3>
+          <div className="card-cinema p-5">
+            <h3 className="label-caps mb-3">Texto Analizado</h3>
             <p className="text-sm leading-relaxed text-slate-700 dark:text-slate-300">
               {result.text}
             </p>
           </div>
 
           {/* Aspectos detectados */}
-          <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-850">
-            <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-              Aspectos Detectados ({result.aspects.length})
-            </h3>
+          <div className="card-cinema p-5">
+            <h3 className="label-caps mb-3">Aspectos Detectados ({result.aspects.length})</h3>
             {result.aspects.length === 0 ? (
               <p className="py-4 text-center text-sm text-slate-400">
                 No se detectaron aspectos en el texto proporcionado.
@@ -174,7 +165,7 @@ export default function LiveAnalysis() {
                   return (
                     <div
                       key={`${a.aspect_lemma}-${idx}`}
-                      className="flex flex-col gap-2 rounded-lg border border-slate-100 p-3 transition hover:border-slate-200 dark:border-slate-800 dark:hover:border-slate-700 sm:flex-row sm:items-center sm:justify-between"
+                      className="flex flex-col gap-2 rounded-xl border border-slate-100 p-3 transition hover:border-slate-200 dark:border-slate-800 dark:hover:border-slate-700 sm:flex-row sm:items-center sm:justify-between"
                     >
                       <div className="flex items-center gap-3">
                         <span className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-slate-100 text-[10px] font-bold text-slate-500 dark:bg-slate-800 dark:text-slate-400">
@@ -196,11 +187,11 @@ export default function LiveAnalysis() {
                           <Icon size={10} />
                           {cfg.label}
                         </span>
-                        <span className="rounded bg-slate-50 px-2 py-1 text-[10px] font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
+                        <span className="rounded-lg bg-slate-50 px-2 py-1 text-[10px] font-medium text-slate-500 dark:bg-slate-800 dark:text-slate-400">
                           {a.adjetivo}
                         </span>
                         <span
-                          className="text-[10px] font-bold tabular-nums"
+                          className="text-[10px] font-bold tabular-nums text-gold"
                           title="Confianza del modelo"
                         >
                           {(a.confidence * 100).toFixed(0)}%
@@ -215,10 +206,8 @@ export default function LiveAnalysis() {
 
           {/* Resumen por sentimiento */}
           {result.aspects.length > 0 && (
-            <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-850">
-              <h3 className="mb-3 text-sm font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-                Distribución de Sentimientos
-              </h3>
+            <div className="card-cinema p-5">
+              <h3 className="label-caps mb-3">Distribucion de Sentimientos</h3>
               <div className="flex flex-wrap gap-4">
                 {Object.entries(
                   result.aspects.reduce((acc, a) => {
@@ -230,7 +219,7 @@ export default function LiveAnalysis() {
                   const pct = Math.round((count / result.aspects.length) * 100);
                   return (
                     <div key={sent} className="flex items-center gap-2">
-                      <span className={`inline-block h-3 w-3 rounded-full ${sent === 'positivo' ? 'bg-emerald-500' : sent === 'negativo' ? 'bg-rose-500' : 'bg-slate-400'}`} />
+                      <span className={`inline-block h-3 w-3 rounded-full ${sent === 'positivo' ? 'bg-emerald-500' : sent === 'negativo' ? 'bg-red-500 dark:bg-red-400' : 'bg-slate-400'}`} />
                       <span className="text-sm capitalize text-slate-700 dark:text-slate-300">
                         {cfg.label}
                       </span>

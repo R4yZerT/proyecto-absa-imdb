@@ -57,6 +57,7 @@ class SummaryResponse(BaseModel):
     total_aspects: int
     positive_pct: float
     negative_pct: float
+    avg_confidence: float
 class TopAspectItem(BaseModel):
     aspect_lemma: str
     count: int

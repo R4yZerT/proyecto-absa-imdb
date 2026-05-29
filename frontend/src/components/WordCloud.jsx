@@ -1,26 +1,17 @@
 /**
  * Nube de palabras (Word Cloud) personalizada en SVG.
- * Muestra adjetivos descriptivos frecuentes; el tamaño refleja la frecuencia
- * y el color refleja el sentimiento dominante (verde=positivo, rojo=negativo).
- * Diseñada para modo oscuro con alto contraste.
+ * Estetica cinematografica con tipografia DM Sans y colores dorados/emerald/crimson.
  */
 import { useMemo } from 'react';
 
 const SENTIMENT_COLORS = {
-  positivo: '#10b981', // emerald-500
-  negativo: '#f43f5e', // rose-500
+  positivo: '#4ade80', // emerald-400
+  negativo: '#ef4444', // red-500
 };
 
-/**
- * Algoritmo de colocación en espiral para evitar solapamientos.
- * Procesa palabras de mayor a menor tamaño para maximizar el espacio.
- * Incluye padding entre palabras y búsqueda densa.
- */
 function layoutWords(words, width, height) {
   const placed = [];
-  const padding = 4; // px de separación entre palabras
-
-  // Procesar de mayor a menor fontSize para mejor packing
+  const padding = 4;
   const sorted = [...words].sort((a, b) => b.fontSize - a.fontSize);
 
   for (const word of sorted) {
@@ -31,9 +22,8 @@ function layoutWords(words, width, height) {
 
     let best = null;
     let angle = 0;
-    const step = 0.25; // paso angular más fino
+    const step = 0.25;
     let radius = 2;
-
     const maxIter = 2500;
 
     for (let i = 0; i < maxIter; i++) {
@@ -62,7 +52,6 @@ function layoutWords(words, width, height) {
       radius += 0.8;
     }
 
-    // Fallback: búsqueda en grid si la espiral falla
     if (!best) {
       for (let gy = halfH; gy < height - halfH; gy += approxH + padding) {
         for (let gx = halfW; gx < width - halfW; gx += approxW + padding) {
@@ -82,7 +71,6 @@ function layoutWords(words, width, height) {
       }
     }
 
-    // Si aún no cabe, descartar la palabra (mejor que solapar)
     if (best) {
       word.x = best.x;
       word.y = best.y;
@@ -109,7 +97,7 @@ export default function WordCloud({ data, loading }) {
 
     const baseWords = data.map((d) => {
       const normalized = (d.frequency - minFreq) / freqRange;
-      const fontSize = 18 + normalized * 54; // entre 18px y 72px
+      const fontSize = 18 + normalized * 54;
       return {
         text: d.word,
         fontSize,
@@ -138,15 +126,10 @@ export default function WordCloud({ data, loading }) {
   }
 
   return (
-    <div className="flex h-full flex-col rounded-xl border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-850">
-      <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-        Nube de Palabras
-      </h3>
+    <div className="card-cinema p-4">
+      <h3 className="label-caps mb-2">Nube de Palabras</h3>
       <div className="flex flex-1 items-center justify-center">
-        <svg
-          viewBox={`0 0 ${width} ${height}`}
-          className="h-full w-full"
-        >
+        <svg viewBox={`0 0 ${width} ${height}`} className="h-full w-full">
           <rect width={width} height={height} fill="transparent" />
           {words.map((word, i) => (
             <text
@@ -158,9 +141,9 @@ export default function WordCloud({ data, loading }) {
               fontSize={word.fontSize}
               fontWeight={word.fontSize > 30 ? 700 : 500}
               fill={SENTIMENT_COLORS[word.sentiment] || SENTIMENT_COLORS.positivo}
-              className="transition-opacity duration-300 hover:opacity-80 cursor-default select-none"
+              className="cursor-default select-none transition-opacity duration-300 hover:opacity-70"
               style={{
-                fontFamily: 'Inter, system-ui, sans-serif',
+                fontFamily: 'DM Sans, system-ui, sans-serif',
               }}
             >
               {word.text}
@@ -169,12 +152,12 @@ export default function WordCloud({ data, loading }) {
         </svg>
       </div>
       <div className="mt-3 flex flex-wrap items-center justify-center gap-4 text-xs text-slate-500 dark:text-slate-400">
-        <span className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-emerald-500" />
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block h-2 w-2 rounded-full bg-emerald-400" />
           Positivo
         </span>
-        <span className="flex items-center gap-1">
-          <span className="inline-block h-2 w-2 rounded-full bg-rose-500" />
+        <span className="flex items-center gap-1.5">
+          <span className="inline-block h-2 w-2 rounded-full bg-red-500 dark:bg-red-400" />
           Negativo
         </span>
       </div>

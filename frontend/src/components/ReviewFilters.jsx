@@ -1,12 +1,12 @@
 /**
- * Controles de filtrado avanzados para la vista de Reseñas.
- * Incluye filtros por sentimiento, aspecto específico y nivel de confianza.
+ * Controles de filtrado avanzados para la vista de Resenas.
+ * Estetica cinematografica con badges, inputs refinados y estados visuales claros.
  */
 import { Filter, X } from 'lucide-react';
 
 const SENTIMENTS = [
   { key: 'positivo', label: 'Positivo', color: 'bg-emerald-500', ring: 'ring-emerald-500' },
-  { key: 'negativo', label: 'Negativo', color: 'bg-rose-500', ring: 'ring-rose-500' },
+  { key: 'negativo', label: 'Negativo', color: 'bg-red-500 dark:bg-red-400', ring: 'ring-red-500 dark:ring-red-400' },
 ];
 
 export default function ReviewFilters({
@@ -33,18 +33,16 @@ export default function ReviewFilters({
     filters.minConfidence > 0;
 
   return (
-    <div className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-700 dark:bg-slate-850">
+    <div className="card-cinema p-5">
       <div className="mb-4 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Filter size={16} className="text-slate-500 dark:text-slate-400" />
-          <h3 className="text-sm font-semibold uppercase tracking-wider text-slate-600 dark:text-slate-300">
-            Filtros
-          </h3>
+          <h3 className="label-caps">Filtros</h3>
         </div>
         {hasActiveFilters && (
           <button
             onClick={onClear}
-            className="flex items-center gap-1 text-xs font-medium text-slate-500 transition hover:text-rose-500 dark:text-slate-400"
+            className="flex items-center gap-1 text-xs font-medium text-slate-500 transition hover:text-crimson dark:text-slate-400"
           >
             <X size={12} />
             Limpiar filtros
@@ -65,7 +63,7 @@ export default function ReviewFilters({
                 <button
                   key={s.key}
                   onClick={() => toggleSentiment(s.key)}
-                  className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition ${
+                  className={`flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-all duration-200 ${
                     active
                       ? `border-transparent bg-slate-800 text-white ring-1 ${s.ring} dark:bg-slate-700`
                       : 'border-slate-200 bg-slate-50 text-slate-600 hover:bg-slate-100 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700'
@@ -87,7 +85,7 @@ export default function ReviewFilters({
           <select
             value={filters.aspect}
             onChange={(e) => handleChange('aspect', e.target.value)}
-            className="w-full rounded-lg border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-accent focus:ring-1 focus:ring-accent dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
+            className="w-full rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none transition focus:border-gold focus:ring-1 focus:ring-gold/30 dark:border-slate-600 dark:bg-slate-900 dark:text-slate-200"
           >
             <option value="">Todos los aspectos</option>
             {loadingAspects && <option disabled>Cargando...</option>}
@@ -99,11 +97,11 @@ export default function ReviewFilters({
           </select>
         </div>
 
-        {/* Filtro por Confianza Mínima */}
+        {/* Filtro por Confianza Minima */}
         <div>
           <label className="mb-2 block text-xs font-medium text-slate-500 dark:text-slate-400">
-            Confianza Mínima:{' '}
-            <span className="font-bold text-slate-700 dark:text-slate-200">
+            Confianza Minima:{' '}
+            <span className="font-bold text-gold">
               {filters.minConfidence}%
             </span>
           </label>
@@ -114,7 +112,7 @@ export default function ReviewFilters({
             step={5}
             value={filters.minConfidence}
             onChange={(e) => handleChange('minConfidence', Number(e.target.value))}
-            className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-accent dark:bg-slate-700"
+            className="h-2 w-full cursor-pointer appearance-none rounded-lg bg-slate-200 accent-gold dark:bg-slate-700"
           />
           <div className="mt-1 flex justify-between text-[10px] text-slate-400 dark:text-slate-500">
             <span>0%</span>
