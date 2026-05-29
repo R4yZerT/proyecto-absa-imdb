@@ -36,7 +36,8 @@ Arquitectura desacoplada: **Pipeline ETL** → **Base de Datos SQLite** → **AP
 │   │   ├── database.py      # Conexión async/sync a SQLite (SQLAlchemy)
 │   │   ├── models.py        # ORM: Review, Aspect + índices
 │   │   ├── schemas.py       # Pydantic v2
-│   │   └── crud.py          # Consultas optimizadas (agregaciones, filtros)
+│   │   ├── crud.py          # Consultas optimizadas (agregaciones, filtros)
+│   │   └── analyzer.py      # Análisis ABSA en vivo (SpaCy + BERT)
 │   └── requirements.txt
 │
 ├── frontend/
@@ -46,13 +47,19 @@ Arquitectura desacoplada: **Pipeline ETL** → **Base de Datos SQLite** → **AP
 │   │   │   ├── AspectBarChart.jsx
 │   │   │   ├── SentimentDonut.jsx
 │   │   │   ├── ReviewList.jsx
+│   │   │   ├── ReviewFilters.jsx
 │   │   │   ├── Sidebar.jsx
-│   │   │   └── ThemeToggle.jsx
+│   │   │   ├── ThemeToggle.jsx
+│   │   │   ├── WordCloud.jsx
+│   │   │   ├── TopWordsList.jsx
+│   │   │   ├── ConfidenceChart.jsx
+│   │   │   ├── PolarizedAspects.jsx
+│   │   │   └── LiveAnalysis.jsx
 │   │   ├── hooks/
 │   │   │   └── useApi.js
-│   │   ├── App.jsx          # Dashboard principal
+│   │   ├── App.jsx          # Dashboard principal (3 vistas)
 │   │   ├── main.jsx
-│   │   └── index.css        # Tailwind v3 directives
+│   │   └── index.css        # Tailwind v3 + tema cinematográfico
 │   ├── tailwind.config.js
 │   ├── vite.config.js       # Proxy /api → localhost:8000
 │   └── package.json
@@ -64,15 +71,19 @@ Arquitectura desacoplada: **Pipeline ETL** → **Base de Datos SQLite** → **AP
 │   └── sentiment_analysis.py # BERT/RoBERTa: clasificación de sentimiento
 │
 ├── data/
-│   └── raw/
-│       └── IMDB Dataset SPANISH.csv   # Dataset original (no en git)
+│   ├── raw/
+│   │   └── IMDB Dataset SPANISH.csv   # Dataset original (no en git)
+│   ├── output/
+│   │   └── robertuito-imdb-finetuned/ # Modelo fine-tuneado (pesos no en git)
+│   └── models/
+│       └── .gitkeep
 │
 ├── notebooks/
 │   └── ABSA_Pipeline_Train_Inference.ipynb
 │
+├── logs/                    # Logs de ejecución (no en git)
 ├── src/                     # Código legado (reutilizado por pipeline/)
-├── dashboard/               # Dashboard legado Streamlit
-└── logs/                    # Logs de ejecución
+└── dashboard/               # Dashboard legado Streamlit
 ```
 
 ---
@@ -150,8 +161,14 @@ Endpoints disponibles:
 |---|---|---|
 | `GET` | `/api/v1/summary` | KPIs globales |
 | `GET` | `/api/v1/aspects/top` | Top aspectos (opcional: `?sentiment=negativo&limit=10`) |
+| `GET` | `/api/v1/aspects/list` | Lista completa de aspectos para filtros |
 | `GET` | `/api/v1/aspects/{aspect}/distribution` | Distribución de sentimiento de un aspecto |
+| `GET` | `/api/v1/aspects/polarized` | Aspectos más polarizados (controversiales) |
+| `GET` | `/api/v1/words/top` | Adjetivos más frecuentes para nube de palabras |
+| `GET` | `/api/v1/confidence/distribution` | Distribución de confianza del modelo en bins |
 | `GET` | `/api/v1/reviews` | Reseñas paginadas (`?aspect=X&sentiment=Y&skip=0&limit=20`) |
+| `GET` | `/api/v1/reviews/{review_id}/aspects` | Aspectos extraídos de una reseña específica |
+| `POST` | `/api/v1/analyze` | Análisis ABSA en vivo de un texto |
 
 ### Paso 3 – Frontend Dashboard
 
@@ -168,11 +185,22 @@ El proxy de Vite redirige `/api/*` al backend en `localhost:8000`.
 
 ## Características del Frontend
 
-- **Layout SaaS:** Sidebar + header + grid de widgets.
+- **Tema Cinematográfico "Golden Reel":** Paleta oscura con acentos dorados, tipografía display y transiciones fluidas.
+- **Layout SaaS:** Sidebar navegable + header + grid de widgets.
+- **3 Vistas:**
+  - **Dashboard:** KPIs, gráficos de aspectos, nube de palabras, confianza y polarización.
+  - **Reseñas:** Lista paginada con filtros avanzados (sentimiento, aspecto, confianza mínima, rango de fechas).
+  - **Analizar en Vivo:** Textarea para analizar texto en tiempo real con extracción de aspectos y sentimiento.
 - **KPIBar:** Métricas globales con skeleton loaders.
 - **AspectBarChart:** Barras horizontales interactivas; clic en una barra filtra el dashboard por aspecto.
+- **WordCloud:** Nube de palabras con adjetivos más frecuentes y su sentimiento dominante.
+- **TopWordsList:** Lista de adjetivos descriptivos más comunes.
+- **ConfidenceChart:** Distribución de confianza del modelo en bins predefinidos.
+- **PolarizedAspects:** Aspectos con mayor polarización (diferencia positivo vs negativo).
 - **SentimentDonut:** Distribución de sentimientos (global o por aspecto seleccionado).
 - **ReviewList:** Lista paginada de reseñas con manejo de errores y estados vacíos.
+- **ReviewFilters:** Filtros avanzados con dropdown de aspectos, rango de fechas y confianza mínima.
+- **LiveAnalysis:** Análisis ABSA en vivo con shortcut `Ctrl/Cmd + Enter`.
 - **ThemeToggle:** Alternancia Dark/Light con persistencia en `localStorage`.
 - **Responsive:** Grid adaptable a móvil, tablet y escritorio.
 
@@ -187,15 +215,24 @@ El proxy de Vite redirige `/api/*` al backend en `localhost:8000`.
 | **Carga masiva** | `pandas.to_sql(..., method='multi', chunksize=2000)` |
 | **Manejo de errores** | Try-except por batch en pipeline; HTTPException en API; UI states en React |
 | **Logging** | Logging estructurado en pipeline con archivo y stdout |
-| **CORS** | Permitido explícitamente para `localhost:5173` |
+| **CORS** | Permitido explícitamente para `localhost:5173` y `localhost:3000` vía variable de entorno |
 | **Dark Mode** | Tailwind `dark:` + clase `.dark` toggled vía JS |
+| **Análisis en vivo** | Ejecutado en thread separado (`asyncio.to_thread`) para no bloquear el event loop |
+
+---
+
+## Seguridad y Git
+
+- **No se versionan archivos sensibles ni generados:** El `.gitignore` excluye bases de datos SQLite (`.db`), logs (`.log`), archivos PID (`.pid`), archivos de sistema (`.DS_Store`), entornos virtuales y pesos de modelos.
+- **Variables de entorno:** Las configuraciones sensibles se leen desde variables de entorno con valores por defecto seguros para desarrollo local (ver `backend/app/config.py`).
+- **Dataset IMDb Spanish (~130MB)** está en `.gitignore`; descárgalo de [Kaggle](https://www.kaggle.com/datasets/lucamla/imdb-reviews-in-spanish) y colócalo en `data/raw/`.
 
 ---
 
 ## Notas
 
 - El modelo fine-tuneado `robertuito-imdb-finetuned` es opcional. Si no existe, el pipeline usa el modelo base `pysentimiento/robertuito-sentiment-analysis`.
-- El dataset IMDb Spanish (~130MB) está en `.gitignore`; descárgalo de [Kaggle](https://www.kaggle.com/datasets/lucamla/imdb-reviews-in-spanish) y colócalo en `data/raw/`.
+- Los archivos de configuración del modelo (`config.json`, `tokenizer_config.json`, etc.) sí se versionan para documentar la arquitectura, pero los **pesos** (`.safetensors`, `.bin`, `.pt`) están excluidos por su tamaño.
 
 ---
 

@@ -9,6 +9,11 @@ venv/
 ENV/
 env/
 
+# Environment variables / secrets
+.env
+.env.*
+*.env
+
 # Data files (raw, processed, output - too large for git)
 data/raw/*.csv
 data/raw/*.zip
@@ -24,11 +29,26 @@ data/output/**/*.pth
 data/models/**
 !data/models/.gitkeep
 
+# SQLite databases
+data/**/*.db
+backend/*.db
+*.db
+*.sqlite
+*.sqlite3
+
 # Logs
 logs/*.log
+logs/**/*.log
+backend/*.log
+*.log
+
+# PID files
+*.pid
+logs/*.pid
 
 # macOS
 .DS_Store
+**/.DS_Store
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/
