@@ -80,9 +80,10 @@ pipeline {
                 script {
                     echo 'Limpiando stack anterior...'
                     sh '''
-                        docker compose -f docker-compose.yml down --remove-orphans --timeout 10 || true
-                        docker rm -f absa-backend absa-frontend 2>/dev/null || true
-                        docker compose -f docker-compose.yml rm -fsv 2>/dev/null || true
+                        # NOTA: NO usar --remove-orphans para evitar borrar contenedores ajenos (ej. Jenkins)
+                        docker compose -f docker-compose.yml down --timeout 10 || true
+                        # Eliminar solo contenedores del proyecto actual por nombre exacto
+                        docker rm -f absa-movie-insights-backend-1 absa-movie-insights-frontend-1 2>/dev/null || true
                     '''
 
                     echo 'Levantando servicios con docker compose...'
