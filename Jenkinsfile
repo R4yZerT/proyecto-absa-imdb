@@ -66,9 +66,9 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 script {
-                    echo 'Construyendo imágenes Docker...'
+                    echo 'Construyendo imágenes Docker (sin caché)...'
                     sh '''
-                        docker compose -f docker-compose.yml build
+                        docker compose -f docker-compose.yml build --no-cache
                     '''
                 }
             }
