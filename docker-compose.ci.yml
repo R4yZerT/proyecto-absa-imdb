@@ -2,15 +2,14 @@
 # docker-compose.ci.yml — Override para CI/CD (sin host port binding)
 # =============================================================================
 # Evita colisiones de puerto con servicios ya corriendo en el host del runner.
-# En CI los servicios se exponen solo dentro de la red Docker (absa-network).
+# Elimina completamente el mapeo de puertos del host; los servicios solo se
+# comunican a través de la red interna Docker (absa-network).
 # Smoke tests se ejecutan vía docker compose exec dentro del propio contenedor.
 # =============================================================================
 
 services:
   backend:
-    ports:
-      - "8000"  # expone el puerto del contenedor; Docker asigna uno aleatorio en el host
+    ports: null
 
   frontend:
-    ports:
-      - "5173"
+    ports: null
