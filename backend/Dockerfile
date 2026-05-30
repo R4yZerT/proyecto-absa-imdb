@@ -49,6 +49,8 @@ RUN python -m spacy download es_core_news_md
 # ---------------------------------------------------------------------------
 # Código fuente (se copia AL FINAL: cualquier cambio aquí no invalida caché de deps)
 # ---------------------------------------------------------------------------
+# Copiar __init__.py del paquete backend para evitar problemas con namespace packages
+COPY backend/__init__.py ./backend/__init__.py
 COPY backend/app ./backend/app
 COPY pipeline ./pipeline
 
@@ -62,6 +64,10 @@ RUN chmod +x /entrypoint.sh
 # ---------------------------------------------------------------------------
 # Runtime
 # ---------------------------------------------------------------------------
+# Asegurar que /app esté en PYTHONPATH para que los imports absolutos tipo
+# 'backend.app.main' funcionen sin depender del directorio de ejecución.
+ENV PYTHONPATH=/app
+
 EXPOSE 8000
 
 HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
