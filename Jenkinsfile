@@ -1,11 +1,11 @@
-# =============================================================================
-# Jenkinsfile — Pipeline CI/CD declarativo
-# =============================================================================
-# Requisitos del agente Jenkins:
-#   - Docker instalado
-#   - Plugin "Docker Pipeline"
-#   - Usuario jenkins en grupo docker
-# =============================================================================
+// =============================================================================
+// Jenkinsfile — Pipeline CI/CD declarativo
+// =============================================================================
+// Requisitos del agente Jenkins:
+//   - Docker instalado
+//   - Plugin "Docker Pipeline"
+//   - Usuario jenkins en grupo docker
+// =============================================================================
 
 pipeline {
     agent any
