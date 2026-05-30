@@ -66,7 +66,7 @@ pipeline {
                 script {
                     echo 'Construyendo imágenes Docker...'
                     sh '''
-                        docker compose -f docker-compose.yml build
+                        docker compose -f docker-compose.yml -f docker-compose.ci.yml build
                     '''
                 }
             }
@@ -79,20 +79,17 @@ pipeline {
                     echo 'Limpiando stack anterior y liberando puertos...'
                     sh '''
                         # 1. Bajar stack completo (incluye redes, volúmenes huérfanos y timeout forzado)
-                        docker compose -f docker-compose.yml down --remove-orphans --timeout 10 || true
+                        docker compose -f docker-compose.yml -f docker-compose.ci.yml down --remove-orphans --timeout 10 || true
                         # 2. Eliminar contenedores huérfanos por nombre
                         docker rm -f absa-backend absa-frontend 2>/dev/null || true
-                        docker compose -f docker-compose.yml rm -fsv 2>/dev/null || true
-                        # 3. Liberar puertos 8000 y 5173 en el host (si un proceso no-Docker los mantiene)
-                        fuser -k 8000/tcp 2>/dev/null || true
-                        fuser -k 5173/tcp 2>/dev/null || true
-                        # 4. Esperar a que Docker suelte el binding de red
+                        docker compose -f docker-compose.yml -f docker-compose.ci.yml rm -fsv 2>/dev/null || true
+                        # 3. Esperar a que Docker suelte el binding de red
                         sleep 3
                     '''
 
                     echo 'Levantando servicios con docker compose...'
                     sh '''
-                        docker compose -f docker-compose.yml up -d --force-recreate
+                        docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --force-recreate
                     '''
                 }
             }
@@ -107,13 +104,13 @@ pipeline {
 
                     echo 'Testeando backend...'
                     sh '''
-                        curl -sf http://localhost:8000/api/v1/summary \
+                        curl -sf http://localhost:8001/api/v1/summary \
                           || (echo "Backend no responde"; exit 1)
                     '''
 
                     echo 'Testeando frontend...'
                     sh '''
-                        curl -sf http://localhost:5173 \
+                        curl -sf http://localhost:5174 \
                           || (echo "Frontend no responde"; exit 1)
                     '''
                 }
@@ -137,8 +134,8 @@ pipeline {
         failure {
             echo 'El pipeline falló. Revisar logs.'
             sh '''
-                docker compose -f docker-compose.yml logs --tail=50 backend || true
-                docker compose -f docker-compose.yml logs --tail=50 frontend || true
+                docker compose -f docker-compose.yml -f docker-compose.ci.yml logs --tail=50 backend || true
+                docker compose -f docker-compose.yml -f docker-compose.ci.yml logs --tail=50 frontend || true
             '''
         }
     }
