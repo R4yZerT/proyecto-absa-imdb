@@ -14,7 +14,6 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    container_name: absa-backend
     ports:
       - "8000:8000"
     volumes:
@@ -47,7 +46,6 @@ services:
     build:
       context: .
       dockerfile: frontend/Dockerfile.dev
-    container_name: absa-frontend
     ports:
       - "5173:5173"
     volumes:

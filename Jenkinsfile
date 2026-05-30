@@ -79,6 +79,9 @@ pipeline {
                     echo 'Levantando servicios con docker compose...'
                     sh '''
                         docker compose -f docker-compose.yml down --remove-orphans || true
+                        # Eliminar contenedores huérfanos por nombre (colisión si
+                        # el contenedor quedó de una ejecución con project name distinto)
+                        docker rm -f absa-backend absa-frontend 2>/dev/null || true
                         docker compose -f docker-compose.yml up -d
                     '''
                 }
