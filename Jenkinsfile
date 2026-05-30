@@ -76,13 +76,23 @@ pipeline {
         stage('Desplegar Stack') {
             steps {
                 script {
+                    echo 'Limpiando stack anterior y liberando puertos...'
+                    sh '''
+                        # 1. Bajar stack completo (incluye redes, volúmenes huérfanos y timeout forzado)
+                        docker compose -f docker-compose.yml down --remove-orphans --timeout 10 || true
+                        # 2. Eliminar contenedores huérfanos por nombre
+                        docker rm -f absa-backend absa-frontend 2>/dev/null || true
+                        docker compose -f docker-compose.yml rm -fsv 2>/dev/null || true
+                        # 3. Liberar puertos 8000 y 5173 en el host (si un proceso no-Docker los mantiene)
+                        fuser -k 8000/tcp 2>/dev/null || true
+                        fuser -k 5173/tcp 2>/dev/null || true
+                        # 4. Esperar a que Docker suelte el binding de red
+                        sleep 3
+                    '''
+
                     echo 'Levantando servicios con docker compose...'
                     sh '''
-                        docker compose -f docker-compose.yml down --remove-orphans || true
-                        # Eliminar contenedores huérfanos por nombre (colisión si
-                        # el contenedor quedó de una ejecución con project name distinto)
-                        docker rm -f absa-backend absa-frontend 2>/dev/null || true
-                        docker compose -f docker-compose.yml up -d
+                        docker compose -f docker-compose.yml up -d --force-recreate
                     '''
                 }
             }
