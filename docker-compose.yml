@@ -1,0 +1,78 @@
+# =============================================================================
+# docker-compose.yml — Orquestación completa del stack ABSA Movie Insights
+# =============================================================================
+# Uso:
+#   docker compose up --build        → Levanta backend + frontend (desarrollo)
+#   docker compose up backend        → Solo backend
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # Backend FastAPI (desarrollo)
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: absa-backend
+    ports:
+      - "8000:8000"
+    volumes:
+      # Hot-reload: sincroniza cambios del código
+      - ./backend/app:/app/backend/app:ro
+      # BD SQLite persistente (ya poblada)
+      - ./backend/absa_movies.db:/app/backend/absa_movies.db
+      # Cache de HuggingFace (para no re-descargar modelos)
+      - huggingface_cache:/root/.cache/huggingface
+    environment:
+      - PYTHONUNBUFFERED=1
+      - DATABASE_URL=sqlite+aiosqlite:////app/backend/absa_movies.db
+      - SYNC_DATABASE_URL=sqlite:////app/backend/absa_movies.db
+      - CORS_ORIGINS=http://localhost:5173,http://localhost:3000,http://frontend:5173
+      - DEVICE=-1
+      - SPACY_MODEL=es_core_news_md
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v1/summary"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    networks:
+      - absa-network
+
+  # ---------------------------------------------------------------------------
+  # Frontend React + Vite (desarrollo con hot-reload)
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend/Dockerfile.dev
+    container_name: absa-frontend
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src:ro
+      - ./frontend/public:/app/public:ro
+      - ./frontend/index.html:/app/index.html:ro
+      - ./frontend/vite.config.js:/app/vite.config.js:ro
+    environment:
+      - VITE_API_TARGET=http://backend:8000
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - absa-network
+
+# ---------------------------------------------------------------------------
+# Volúmenes
+# ---------------------------------------------------------------------------
+volumes:
+  huggingface_cache:
+    driver: local
+
+# ---------------------------------------------------------------------------
+# Redes
+# ---------------------------------------------------------------------------
+networks:
+  absa-network:
+    driver: bridge

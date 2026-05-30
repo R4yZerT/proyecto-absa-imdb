@@ -66,6 +66,7 @@ build/
 
 # Node / pnpm
 node_modules/
+frontend/dist/
 
 # Agent / opencode
 .agents/

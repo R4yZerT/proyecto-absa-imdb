@@ -1,0 +1,32 @@
+# =============================================================================
+# jenkins/plugins.txt — Plugins Jenkins necesarios para CI/CD
+# =============================================================================
+# Pipeline
+pipeline-model-definition
+pipeline-stage-view
+pipeline-github-lib
+
+# SCM
+git
+github
+github-branch-source
+
+# Docker
+docker-workflow
+docker-plugin
+
+# Credenciales
+credentials-binding
+
+# Config as Code
+configuration-as-code
+
+# Utilidades
+job-dsl
+timestamper
+build-timeout
+ws-cleanup
+
+# Notificaciones
+email-ext
+mailer

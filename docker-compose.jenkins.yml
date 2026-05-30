@@ -1,0 +1,50 @@
+# =============================================================================
+# docker-compose.jenkins.yml — Jenkins local con plugins + JCasC
+# =============================================================================
+# Uso:
+#   docker compose -f docker-compose.jenkins.yml build
+#   docker compose -f docker-compose.jenkins.yml up -d
+#   Abrir http://localhost:8080  (admin:admin)
+# =============================================================================
+
+services:
+  jenkins:
+    build:
+      context: .
+      dockerfile: jenkins/Dockerfile
+    container_name: absa-jenkins
+    user: root
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      # Persistencia de configuración de Jenkins
+      - jenkins_home:/var/jenkins_home
+      # Permite a Jenkins ejecutar Docker (Docker-in-Docker)
+      - /var/run/docker.sock:/var/run/docker.sock
+      # Acceso al código fuente del proyecto para builds
+      - .:/workspace:ro
+    environment:
+      # JCasC
+      - CASC_JENKINS_CONFIG=/usr/share/jenkins/ref/jenkins.yaml
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=false
+      # Admin user (cambiar en producción)
+      - JENKINS_ADMIN_USER=admin
+      - JENKINS_ADMIN_PASSWORD=admin
+      # Jenkins URL
+      - JENKINS_URL=http://localhost:8080
+      # GitHub (opcional — setear en .env)
+      - GITHUB_USER=${GITHUB_USER:-}
+      - GITHUB_TOKEN=${GITHUB_TOKEN:-}
+      # Docker Hub (opcional)
+      - DOCKER_HUB_TOKEN=${DOCKER_HUB_TOKEN:-}
+    networks:
+      - absa-jenkins-network
+
+volumes:
+  jenkins_home:
+    driver: local
+
+networks:
+  absa-jenkins-network:
+    driver: bridge
