@@ -1,10 +1,11 @@
 # =============================================================================
-# backend/Dockerfile — Optimizado para builds rápidas
+# backend/Dockerfile — Optimizado para aarch64 con límite de memoria
 # =============================================================================
 # Estrategia:
-#   1. Instalar torch CPU-only primero (evita CUDA ~2GB)
-#   2. Combinar pip installs en menos capas
-#   3. Copiar código al final (cache-friendly)
+#   1. Capas separadas por grupo de dependencias (reduce pico de RAM)
+#   2. torch CPU-only primero (evita CUDA ~2GB)
+#   3. --only-binary evita compilación Cython en ARM64
+#   4. Código al final (cache-friendly)
 # =============================================================================
 
 FROM python:3.11-slim
@@ -12,25 +13,33 @@ FROM python:3.11-slim
 WORKDIR /app
 
 # ---------------------------------------------------------------------------
-# Sistema: solo lo estrictamente necesario (curl para healthcheck)
+# Sistema: solo lo estrictamente necesario
 # ---------------------------------------------------------------------------
 RUN apt-get update \
-    && apt-get install -y --no-install-recommends curl \
+    && apt-get install -y --no-install-recommends curl build-essential \
     && rm -rf /var/lib/apt/lists/*
 
 # ---------------------------------------------------------------------------
-# Python deps: orden optimizado para caché
-#   Paso 1: torch CPU-only (instalar primero evita que transformers traiga CUDA)
-#   Paso 2: requirements del backend (fastapi, uvicorn, sqlalchemy, etc.)
-#   Paso 3: requirements del pipeline (spacy, transformers, pandas, etc.)
+# Python deps — Capa 1: torch CPU-only
+# Separado del resto para no acumular torch + spacy + transformers en RAM
 # ---------------------------------------------------------------------------
-COPY backend/requirements.txt ./backend/requirements.txt
 COPY requirements.txt ./requirements.txt
 
 RUN pip install --no-cache-dir \
-    torch --index-url https://download.pytorch.org/whl/cpu \
-    && pip install --no-cache-dir -r backend/requirements.txt \
-    && pip install --no-cache-dir -r requirements.txt
+    torch --index-url https://download.pytorch.org/whl/cpu
+
+# ---------------------------------------------------------------------------
+# Python deps — Capa 2: backend liviano (FastAPI, uvicorn, sqlalchemy)
+# ---------------------------------------------------------------------------
+COPY backend/requirements.txt ./backend/requirements.txt
+
+RUN pip install --no-cache-dir --only-binary :all: -r backend/requirements.txt
+
+# ---------------------------------------------------------------------------
+# Python deps — Capa 3: pipeline pesado (spacy, transformers, pandas, etc.)
+# --only-binary evita compilar extensiones Cython (preshed, cymem) en ARM64
+# ---------------------------------------------------------------------------
+RUN pip install --no-cache-dir --only-binary :all: -r requirements.txt
 
 # ---------------------------------------------------------------------------
 # Modelos SpaCy (bajan ~50MB; capa cacheable si no cambia spacy)
