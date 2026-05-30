@@ -15,7 +15,7 @@ services:
       context: .
       dockerfile: backend/Dockerfile
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
     volumes:
       # Hot-reload: sincroniza cambios del código
       - ./backend/app:/app/backend/app:ro
@@ -47,7 +47,7 @@ services:
       context: .
       dockerfile: frontend/Dockerfile.dev
     ports:
-      - "5173:5173"
+      - "${FRONTEND_PORT:-5173}:5173"
     volumes:
       - ./frontend/src:/app/src:ro
       - ./frontend/public:/app/public:ro

@@ -13,6 +13,8 @@ pipeline {
     environment {
         COMPOSE_PROJECT_NAME = 'absa-movie-insights'
         DOCKER_BUILDKIT        = '1'
+        BACKEND_PORT           = '8001'
+        FRONTEND_PORT          = '5174'
     }
 
     options {
@@ -66,7 +68,7 @@ pipeline {
                 script {
                     echo 'Construyendo imágenes Docker...'
                     sh '''
-                        docker compose -f docker-compose.yml -f docker-compose.ci.yml build
+                        docker compose -f docker-compose.yml build
                     '''
                 }
             }
@@ -78,14 +80,14 @@ pipeline {
                 script {
                     echo 'Limpiando stack anterior...'
                     sh '''
-                        docker compose -f docker-compose.yml -f docker-compose.ci.yml down --remove-orphans --timeout 10 || true
+                        docker compose -f docker-compose.yml down --remove-orphans --timeout 10 || true
                         docker rm -f absa-backend absa-frontend 2>/dev/null || true
-                        docker compose -f docker-compose.yml -f docker-compose.ci.yml rm -fsv 2>/dev/null || true
+                        docker compose -f docker-compose.yml rm -fsv 2>/dev/null || true
                     '''
 
                     echo 'Levantando servicios con docker compose...'
                     sh '''
-                        docker compose -f docker-compose.yml -f docker-compose.ci.yml up -d --force-recreate
+                        docker compose -f docker-compose.yml up -d --force-recreate
                     '''
                 }
             }
@@ -98,8 +100,8 @@ pipeline {
                     echo 'Esperando healthcheck del backend...'
                     sh '''
                         timeout 45 sh -c '
-                            until docker compose -f docker-compose.yml -f docker-compose.ci.yml exec -T backend curl -sf http://localhost:8000/api/v1/summary; do
-                                echo "Esperando backend..."
+                            until curl -sf http://localhost:${BACKEND_PORT}/api/v1/summary; do
+                                echo "Esperando backend en puerto ${BACKEND_PORT}..."
                                 sleep 2
                             done
                         '
@@ -107,7 +109,7 @@ pipeline {
 
                     echo 'Verificando frontend...'
                     sh '''
-                        docker compose -f docker-compose.yml -f docker-compose.ci.yml exec -T frontend wget -qO- http://localhost:5173 || exit 1
+                        curl -sf http://localhost:${FRONTEND_PORT} || exit 1
                     '''
                 }
             }
@@ -130,8 +132,8 @@ pipeline {
         failure {
             echo 'El pipeline falló. Revisar logs.'
             sh '''
-                docker compose -f docker-compose.yml -f docker-compose.ci.yml logs --tail=50 backend || true
-                docker compose -f docker-compose.yml -f docker-compose.ci.yml logs --tail=50 frontend || true
+                docker compose -f docker-compose.yml logs --tail=50 backend || true
+                docker compose -f docker-compose.yml logs --tail=50 frontend || true
             '''
         }
     }

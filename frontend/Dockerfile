@@ -12,8 +12,10 @@ FROM node:22-alpine AS builder
 
 WORKDIR /app
 
-# Activar corepack para pnpm
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Usar mirror de npm registry (evita bloqueos de IP/SSL)
+RUN npm config set registry https://registry.npmmirror.com && \
+    npm install -g pnpm && \
+    pnpm config set registry https://registry.npmmirror.com
 
 # Copiar archivos de dependencias
 COPY frontend/package.json frontend/pnpm-lock.yaml ./
