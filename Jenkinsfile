@@ -76,15 +76,11 @@ pipeline {
         stage('Desplegar Stack') {
             steps {
                 script {
-                    echo 'Limpiando stack anterior y liberando puertos...'
+                    echo 'Limpiando stack anterior...'
                     sh '''
-                        # 1. Bajar stack completo (incluye redes, volúmenes huérfanos y timeout forzado)
                         docker compose -f docker-compose.yml -f docker-compose.ci.yml down --remove-orphans --timeout 10 || true
-                        # 2. Eliminar contenedores huérfanos por nombre
                         docker rm -f absa-backend absa-frontend 2>/dev/null || true
                         docker compose -f docker-compose.yml -f docker-compose.ci.yml rm -fsv 2>/dev/null || true
-                        # 3. Esperar a que Docker suelte el binding de red
-                        sleep 3
                     '''
 
                     echo 'Levantando servicios con docker compose...'
@@ -99,19 +95,19 @@ pipeline {
         stage('Smoke Tests') {
             steps {
                 script {
-                    echo 'Esperando que los servicios estén listos...'
-                    sh 'sleep 15'
-
-                    echo 'Testeando backend...'
+                    echo 'Esperando healthcheck del backend...'
                     sh '''
-                        curl -sf http://localhost:8001/api/v1/summary \
-                          || (echo "Backend no responde"; exit 1)
+                        timeout 45 sh -c '
+                            until docker compose -f docker-compose.yml -f docker-compose.ci.yml exec -T backend curl -sf http://localhost:8000/api/v1/summary; do
+                                echo "Esperando backend..."
+                                sleep 2
+                            done
+                        '
                     '''
 
-                    echo 'Testeando frontend...'
+                    echo 'Verificando frontend...'
                     sh '''
-                        curl -sf http://localhost:5174 \
-                          || (echo "Frontend no responde"; exit 1)
+                        docker compose -f docker-compose.yml -f docker-compose.ci.yml exec -T frontend wget -qO- http://localhost:5173 || exit 1
                     '''
                 }
             }
