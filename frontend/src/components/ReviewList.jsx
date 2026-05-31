@@ -125,22 +125,24 @@ export default function ReviewList({ data, loading, error, skip, limit, onPageCh
                       </button>
                     </div>
                     {(() => {
-                      const sentimentLower = (review.original_sentiment || '').toString().toLowerCase();
-                      const isPos = sentimentLower === 'positivo' || sentimentLower === 'positive';
-                      const isNeg = sentimentLower === 'negativo' || sentimentLower === 'negative';
+                      const sentiment = (review.overall_sentiment || '').toString().toLowerCase();
+                      const isPos = sentiment === 'positivo';
+                      const isNeg = sentiment === 'negativo';
                       return (
                         <div className="mt-2 flex items-center gap-2">
-                          <span
-                            className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
-                              isPos
-                                ? 'bg-emerald-500/10 text-emerald-700 ring-1 ring-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20'
-                                : isNeg
-                                ? 'bg-gradient-to-br from-red-500/15 to-red-600/10 text-red-700 ring-1 ring-red-500/20 dark:from-red-500/20 dark:to-red-600/15 dark:text-red-400 dark:ring-red-500/25'
-                                : 'bg-slate-100 text-slate-600 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-700'
-                            }`}
-                          >
-                            {review.original_sentiment}
-                          </span>
+                          {sentiment && (
+                            <span
+                              className={`rounded-full px-2.5 py-0.5 text-xs font-medium ${
+                                isPos
+                                  ? 'bg-emerald-500/10 text-emerald-700 ring-1 ring-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-400 dark:ring-emerald-500/20'
+                                  : isNeg
+                                  ? 'bg-gradient-to-br from-red-500/15 to-red-600/10 text-red-700 ring-1 ring-red-500/20 dark:from-red-500/20 dark:to-red-600/15 dark:text-red-400 dark:ring-red-500/25'
+                                  : 'bg-slate-100 text-slate-600 ring-1 ring-slate-200 dark:bg-slate-800 dark:text-slate-400 dark:ring-slate-700'
+                              }`}
+                            >
+                              {sentiment}
+                            </span>
+                          )}
                           <span className="text-xs text-slate-400">ID: {review.id}</span>
                         </div>
                       );

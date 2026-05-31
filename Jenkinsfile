@@ -10,9 +10,15 @@
 pipeline {
     agent any
 
+    parameters {
+        booleanParam(name: 'NO_CACHE', defaultValue: false,
+            description: 'Forzar rebuild sin caché (solo si hay cambios en dependencias)')
+    }
+
     environment {
         COMPOSE_PROJECT_NAME = 'absa-movie-insights'
         DOCKER_BUILDKIT        = '1'
+        BUILDKIT_PROGRESS      = 'plain'
         BACKEND_PORT           = '8001'
         FRONTEND_PORT          = '5174'
     }
@@ -29,6 +35,22 @@ pipeline {
             steps {
                 script {
                     echo 'Checkout del repositorio completado.'
+                }
+            }
+        }
+
+        // -------------------------------------------------------------------
+        stage('Pre-flight: Docker & Buildx') {
+            steps {
+                script {
+                    sh '''
+                        echo "=== Docker version ==="
+                        docker --version
+                        echo "=== Buildx version ==="
+                        docker buildx version 2>&1 || echo "WARNING: buildx no disponible. docker compose build usará builder legacy."
+                        echo "=== Builder inspect ==="
+                        docker buildx inspect 2>&1 || true
+                    '''
                 }
             }
         }
@@ -66,14 +88,14 @@ pipeline {
         stage('Build Docker Images') {
             steps {
                 script {
-                    echo 'Construyendo imágenes Docker (sin caché)...'
-                    sh '''
-                        docker compose -f docker-compose.yml build --no-cache
-                    '''
+                    def cache_flag = params.NO_CACHE ? '--no-cache' : ''
+                    echo "Construyendo imágenes Docker ${cache_flag ? '(sin caché)' : '(con caché)'}..."
+                    sh """
+                        docker compose -f docker-compose.yml build ${cache_flag}
+                    """
                 }
             }
         }
-
         // -------------------------------------------------------------------
         stage('Desplegar Stack') {
             steps {

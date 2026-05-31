@@ -8,13 +8,13 @@ from typing import List, Dict, Optional
 from pathlib import Path
 import json
 import torch
-from transformers import pipeline, AutoTokenizer
+from transformers import pipeline, AutoTokenizer, AutoModelForSequenceClassification
 
 logger = logging.getLogger(__name__)
 
 
 def configurar_pipeline_sentimiento(
-    modelo: str = "pysentimiento/robertuito-sentiment-analysis",
+    modelo: str = "edumunozsala/beto_sentiment_analysis_es",
     device: int = 0,
     batch_size: int = 64,
     max_length: int = 128,
@@ -32,14 +32,20 @@ def configurar_pipeline_sentimiento(
 
     # Si el modelo es un path local (fine-tuneado), usar tokenizer base para evitar
     # incompatibilidades de version entre el entorno de entrenamiento (Colab) y local.
-    tokenizer = modelo
+    tokenizer_name = modelo
     if Path(modelo).exists() and Path(modelo).is_dir():
-        tokenizer = "pysentimiento/robertuito-sentiment-analysis"
-        logger.info(f"Modelo fine-tuneado detectado. Usando tokenizer base: {tokenizer}")
+        tokenizer_name = "edumunozsala/beto_sentiment_analysis_es"
+        logger.info(f"Modelo fine-tuneado detectado. Usando tokenizer base: {tokenizer_name}")
+
+    # Cargar modelo y tokenizer explícitamente para evitar device_map="auto"
+    # que causa errores de "meta tensors" en CPU.
+    tokenizer = AutoTokenizer.from_pretrained(tokenizer_name)
+    model = AutoModelForSequenceClassification.from_pretrained(modelo, torch_dtype=torch.float32)
+    model = model.to("cpu") if device < 0 else model.to(f"cuda:{device}")
 
     classifier = pipeline(
         "sentiment-analysis",
-        model=modelo,
+        model=model,
         tokenizer=tokenizer,
         device=device,
         truncation=True,
@@ -65,8 +71,8 @@ def obtener_mapeo_sentimientos(ruta_modelo: Optional[str] = None) -> Dict[str, s
     Obtiene el mapeo de labels según el tipo de modelo.
     Traduce siempre los valores a español (positivo/negativo).
     """
-    # Diccionario base: modelo pysentimiento/robertuito
-    base_map = {"POS": "positivo", "NEG": "negativo"}
+    # Diccionario base: modelo BETO fine-tuned para sentimiento
+    base_map = {"LABEL_0": "negativo", "LABEL_1": "positivo"}
 
     if ruta_modelo:
         config = cargar_configuracion_modelo_finetuneado(ruta_modelo)

@@ -20,6 +20,7 @@ from backend.app.config import (
     MAX_LENGTH,
     BATCH_SIZE_BERT,
 )
+from pipeline.text_processing import extraer_aspectos_adjetivos, cargar_modelo_spacy
 
 logger = logging.getLogger(__name__)
 
@@ -34,9 +35,8 @@ _mapping_labels = None
 def _load_spacy():
     global _nlp
     if _nlp is None:
-        import spacy
         logger.info(f"Cargando modelo SpaCy: {SPACY_MODEL}")
-        _nlp = spacy.load(SPACY_MODEL, disable=["ner", "textcat", "entity_linker"])
+        _nlp = cargar_modelo_spacy(SPACY_MODEL)
     return _nlp
 
 
@@ -47,7 +47,7 @@ def _load_bert():
             configurar_pipeline_sentimiento,
             obtener_mapeo_sentimientos,
         )
-        ruta_modelo = MODEL_PATH if Path(MODEL_PATH).exists() else "pysentimiento/robertuito-sentiment-analysis"
+        ruta_modelo = MODEL_PATH if Path(MODEL_PATH).exists() else "edumunozsala/beto_sentiment_analysis_es"
         if not Path(MODEL_PATH).exists():
             logger.warning(f"Modelo fine-tuneado no encontrado en {MODEL_PATH}. Usando modelo base.")
         _classifier = configurar_pipeline_sentimiento(
@@ -58,30 +58,6 @@ def _load_bert():
         )
         _mapping_labels = obtener_mapeo_sentimientos(ruta_modelo if Path(MODEL_PATH).exists() else None)
     return _classifier, _mapping_labels
-
-
-# ---------------------------------------------------------------------------
-# Helpers de extracción (adaptados del pipeline)
-# ---------------------------------------------------------------------------
-def _extraer_aspectos_adjetivos(doc) -> List[Dict[str, str]]:
-    resultados = []
-    for sent in doc.sents:
-        for token in sent:
-            if token.pos_ in ("NOUN", "PROPN"):
-                adjetivos = [
-                    child
-                    for child in token.children
-                    if child.dep_ == "amod" and child.pos_ == "ADJ"
-                ]
-                for adj in adjetivos:
-                    fragmento = doc[token.i : adj.i + 1].text
-                    resultados.append({
-                        "aspect_lemma": token.lemma_.lower(),
-                        "adjetivo": adj.text.lower(),
-                        "adjetivo_lemma": adj.lemma_.lower(),
-                        "fragmento": fragmento,
-                    })
-    return resultados
 
 
 def analyze_text(text: str) -> Dict:
@@ -100,20 +76,20 @@ def analyze_text(text: str) -> Dict:
     nlp = _load_spacy()
     classifier, mapping = _load_bert()
 
-    # 1. Extraer aspectos con SpaCy
+    # 1. Extraer aspectos con SpaCy (usando extractor mejorado del pipeline)
     doc = nlp(text)
-    aspectos = _extraer_aspectos_adjetivos(doc)
+    aspectos = extraer_aspectos_adjetivos(doc)
 
     if not aspectos:
         return {"text": text, "overall_sentiment": "positivo", "aspects": []}
 
     # 2. Clasificar sentimiento de cada fragmento con BERT
+    #    Usamos el modelo base BETO pre-entrenado que funciona correctamente.
     fragmentos = [a["fragmento"] for a in aspectos]
     try:
         predicciones = classifier(fragmentos)
     except Exception as exc:
         logger.error(f"Error en inferencia BERT: {exc}")
-        # Fallback: marcar todo como error
         predicciones = [{"label": "ERROR", "score": 0.0} for _ in fragmentos]
 
     # 3. Combinar resultados
@@ -130,9 +106,9 @@ def analyze_text(text: str) -> Dict:
             sentiment = "error"
         sent_counts[sentiment] += 1
         resultados.append({
-            "aspect_lemma": asp["aspect_lemma"],
+            "aspect_lemma": asp["aspecto_lematizado"],
             "adjetivo": asp["adjetivo"],
-            "adjetivo_lemma": asp["adjetivo_lemma"],
+            "adjetivo_lemma": asp["adjetivo_lematizado"],
             "fragmento": asp["fragmento"],
             "sentiment_label": sentiment,
             "confidence": confidence,

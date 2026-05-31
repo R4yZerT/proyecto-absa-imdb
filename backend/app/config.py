@@ -19,12 +19,15 @@ SYNC_DATABASE_URL = os.getenv("SYNC_DATABASE_URL", f"sqlite:///{DB_PATH}")
 
 # Configuración del pipeline
 CSV_PATH = os.getenv("CSV_PATH", str(RAW_DATA_DIR / "IMDB Dataset SPANISH.csv"))
-MODEL_PATH = os.getenv("MODEL_PATH", str(DATA_DIR / "output" / "robertuito-imdb-finetuned"))
+# Nota: el modelo fine-tuneado local fue descartado porque el fine-tuning
+# con labels de reseña completa corrompió las predicciones. Se usa el
+# modelo base pre-entrenado que funciona correctamente.
+MODEL_PATH = os.getenv("MODEL_PATH", "edumunozsala/beto_sentiment_analysis_es")
 SPACY_MODEL = os.getenv("SPACY_MODEL", "es_core_news_md")
 SAMPLE_SIZE = int(os.getenv("SAMPLE_SIZE", "50000"))
 BATCH_SIZE_SPACY = int(os.getenv("BATCH_SIZE_SPACY", "256"))
 BATCH_SIZE_BERT = int(os.getenv("BATCH_SIZE_BERT", "64"))
-MAX_LENGTH = int(os.getenv("MAX_LENGTH", "128"))
+MAX_LENGTH = int(os.getenv("MAX_LENGTH", "256"))
 MIN_FRECUENCIA = int(os.getenv("MIN_FRECUENCIA", "1"))
 DEVICE = int(os.getenv("DEVICE", "0"))  # -1 para CPU
 

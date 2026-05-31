@@ -5,7 +5,7 @@ Todas las funciones son asíncronas para no bloquear el event loop de FastAPI.
 
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select, func, and_, desc, case, Float
+from sqlalchemy import select, func, and_, desc, case, Float, literal
 from sqlalchemy.orm import selectinload
 
 from backend.app.models import Review, Aspect
@@ -211,63 +211,80 @@ async def get_reviews(
     date_to: Optional[str] = None,
 ) -> ReviewListResponse:
     """
-    Retorna reseñas filtradas por aspecto y/o sentimiento, con paginación.
-    Opcionalmente filtra por confianza mínima del aspecto.
+    Retorna reseñas filtradas con sentimiento general calculado
+    por mayoría de votos de aspectos (overall_sentiment).
     """
-    # Construir filtros dinámicos sobre Aspect
+    # Filtros a nivel de aspecto
     aspect_filters = []
     if aspect:
         aspect_filters.append(Aspect.aspect_lemma == aspect)
-    if sentiment:
-        aspect_filters.append(Aspect.sentiment_label == sentiment)
     if min_confidence is not None:
         aspect_filters.append(Aspect.confidence >= min_confidence)
 
-    # Si hay filtros de aspecto, usamos subconsulta sobre la tabla Aspect
-    if aspect or sentiment or min_confidence is not None:
-        count_stmt = (
-            select(func.count(func.distinct(Aspect.review_id)))
-            .where(and_(*aspect_filters))
-        )
-        total = await db.scalar(count_stmt) or 0
+    # Subconsulta: overall_sentiment por reseña (mayoría de aspectos)
+    pos_count = func.sum(case((Aspect.sentiment_label == 'positivo', 1), else_=0))
+    neg_count = func.sum(case((Aspect.sentiment_label == 'negativo', 1), else_=0))
 
-        # Obtener review_ids paginados
-        id_stmt = (
-            select(Aspect.review_id)
-            .where(and_(*aspect_filters))
-            .distinct()
-            .order_by(Aspect.review_id)
-            .offset(skip)
-            .limit(limit)
-        )
-        id_rows = await db.execute(id_stmt)
-        review_ids = [row[0] for row in id_rows.all()]
+    overall_expr = case(
+        (pos_count > neg_count, literal('positivo')),
+        (neg_count > pos_count, literal('negativo')),
+        else_=literal('positivo'),
+    ).label('overall_sentiment')
 
-        # Cargar reseñas
+    subq = select(
+        Aspect.review_id,
+        overall_expr,
+    ).group_by(Aspect.review_id)
+
+    if aspect_filters:
+        subq = subq.where(and_(*aspect_filters))
+
+    # Aplicar filtro de sentimiento general
+    subq = subq.subquery()
+    query_filters = []
+    if sentiment:
+        query_filters.append(subq.c.overall_sentiment == sentiment)
+
+    # Total de reseñas que coinciden
+    count_stmt = select(func.count()).select_from(subq).where(and_(*query_filters))
+    total = (await db.execute(count_stmt)).scalar() or 0
+
+    # Obtener review_ids paginados con su overall_sentiment
+    id_stmt = (
+        select(subq.c.review_id, subq.c.overall_sentiment)
+        .where(and_(*query_filters))
+        .order_by(subq.c.review_id)
+        .offset(skip)
+        .limit(limit)
+    )
+    rows = (await db.execute(id_stmt)).all()
+    review_ids = [r.review_id for r in rows]
+    overall_map = {r.review_id: r.overall_sentiment for r in rows}
+
+    # Cargar reseñas
+    if review_ids:
         stmt = (
             select(Review)
             .where(Review.id.in_(review_ids))
             .order_by(Review.id)
         )
+        result = await db.execute(stmt)
+        reviews = result.scalars().all()
     else:
-        count_stmt = select(func.count(Review.id))
-        total = await db.scalar(count_stmt) or 0
+        reviews = []
 
-        stmt = (
-            select(Review)
-            .order_by(Review.id)
-            .offset(skip)
-            .limit(limit)
-        )
-
-    result = await db.execute(stmt)
-    reviews = result.scalars().all()
+    # Armar respuesta con overall_sentiment
+    items = []
+    for r in reviews:
+        resp = ReviewResponse.model_validate(r)
+        resp.overall_sentiment = overall_map.get(r.id, '')
+        items.append(resp)
 
     return ReviewListResponse(
         total=total,
         skip=skip,
         limit=limit,
-        items=[ReviewResponse.model_validate(r) for r in reviews],
+        items=items,
     )
 
 

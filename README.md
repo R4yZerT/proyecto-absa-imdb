@@ -87,7 +87,7 @@ Arquitectura desacoplada: **Pipeline ETL** → **Base de Datos SQLite** → **AP
 │   ├── raw/
 │   │   └── IMDB Dataset SPANISH.csv   # Dataset original (no en git)
 │   ├── output/
-│   │   └── robertuito-imdb-finetuned/ # Modelo fine-tuneado (pesos no en git)
+│   │   └── beto-imdb-finetuned/       # Modelo fine-tuneado (pesos no en git)
 │   └── models/
 │       └── .gitkeep
 │
@@ -353,7 +353,7 @@ El pipeline declarativo ejecuta los siguientes stages:
 
 ## Notas
 
-- El modelo fine-tuneado `robertuito-imdb-finetuned` es opcional. Si no existe, el pipeline usa el modelo base `pysentimiento/robertuito-sentiment-analysis`.
+- El modelo fine-tuneado `beto-imdb-finetuned` es opcional. Si no existe, el pipeline usa el modelo base `edumunozsala/beto_sentiment_analysis_es`.
 - Los archivos de configuración del modelo (`config.json`, `tokenizer_config.json`, etc.) sí se versionan para documentar la arquitectura, pero los **pesos** (`.safetensors`, `.bin`, `.pt`) están excluidos por su tamaño.
 - El backend en Docker monta la BD SQLite como volumen para evitar file-lock issues en macOS y preservar los datos entre reinicios.
 
@@ -363,4 +363,4 @@ El pipeline declarativo ejecuta los siguientes stages:
 
 - **Dataset:** [IMDb Reviews in Spanish](https://www.kaggle.com/datasets/lucamla/imdb-reviews-in-spanish) por lucamla.
 - **Modelo SpaCy:** Explosion AI — [es_core_news_md](https://spacy.io/models/es).
-- **Modelo BERT:** [pysentimiento/robertuito-sentiment-analysis](https://huggingface.co/pysentimiento/robertuito-sentiment-analysis).
+- **Modelo BERT:** [edumunozsala/beto_sentiment_analysis_es](https://huggingface.co/edumunozsala/beto_sentiment_analysis_es).

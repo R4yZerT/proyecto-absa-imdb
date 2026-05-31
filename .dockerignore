@@ -25,11 +25,8 @@ env/
 
 # Datos pesados (no se necesitan en runtime del API)
 data/raw/
-data/output/*.safetensors
-data/output/*.bin
-data/output/*.pt
-data/output/*.pth
 data/processed/
+# Nota: los pesos del modelo BETO (beto-imdb-finetuned) SÍ se necesitan en runtime
 
 # BD SQLite (se monta como volumen, no se copia en imagen)
 *.db

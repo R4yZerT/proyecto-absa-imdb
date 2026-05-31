@@ -240,11 +240,10 @@ def main():
 
     # 5. Inferencia de sentimiento con BERT
     # -----------------------------------------------------------------------
-    # Elegir modelo: fine-tuneado si existe, sino base
-    ruta_modelo = MODEL_PATH if Path(MODEL_PATH).exists() else SPACY_MODEL
-    if not Path(MODEL_PATH).exists():
-        ruta_modelo = "pysentimiento/robertuito-sentiment-analysis"
-        logger.warning(f"Modelo fine-tuneado no encontrado en {MODEL_PATH}. Usando modelo base.")
+    # Usar modelo base BETO pre-entrenado. El fine-tuneado local fue descartado
+    # porque el entrenamiento con labels de reseña completa corrompió el modelo.
+    ruta_modelo = "edumunozsala/beto_sentiment_analysis_es"
+    logger.info(f"Usando modelo base BETO: {ruta_modelo}")
 
     classifier = configurar_pipeline_sentimiento(
         modelo=ruta_modelo,
@@ -253,9 +252,9 @@ def main():
         max_length=MAX_LENGTH,
     )
 
-    mapping_labels = obtener_mapeo_sentimientos(ruta_modelo if Path(MODEL_PATH).exists() else None)
-    fragmentos = [r["fragmento"] for r in registros_aspectos]
+    mapping_labels = obtener_mapeo_sentimientos(None)
 
+    fragmentos = [r["fragmento"] for r in registros_aspectos]
     logger.info(f"Iniciando inferencia BERT sobre {len(fragmentos)} fragmentos...")
     resultados_bert = analizar_sentimiento_lote(fragmentos, classifier, batch_size=BATCH_SIZE_BERT)
     sentimientos_normalizados = mapear_sentimientos(resultados_bert, mapping=mapping_labels)

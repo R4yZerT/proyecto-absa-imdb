@@ -20,6 +20,7 @@ class ReviewCreate(ReviewBase):
 
 class ReviewResponse(ReviewBase):
     id: int
+    overall_sentiment: str = ""
 
     class Config:
         from_attributes = True
