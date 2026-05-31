@@ -14,13 +14,13 @@ Arquitectura desacoplada: **Pipeline ETL** → **Base de Datos SQLite** → **AP
 │                │     │  Inserción      │     │  Aspects         │     │  CORS        │
 └────────────────┘     │  Masiva         │     └──────────────────┘     └──────┬───────┘
                        └─────────────────┘                                     │
-                                                                                │ HTTP
-                                                                                ▼
-                                                                       ┌────────────────┐
-                                                                       │  React +       │
-                                                                       │  Tailwind CSS  │
-                                                                       │  Recharts      │
-                                                                       └────────────────┘
+                                                                                 │ HTTP
+                                                                                 ▼
+                                                                        ┌────────────────┐
+                                                                        │  React +       │
+                                                                        │  Tailwind CSS  │
+                                                                        │  Recharts      │
+                                                                        └────────────────┘
 ```
 
 ---
@@ -38,7 +38,10 @@ Arquitectura desacoplada: **Pipeline ETL** → **Base de Datos SQLite** → **AP
 │   │   ├── schemas.py       # Pydantic v2
 │   │   ├── crud.py          # Consultas optimizadas (agregaciones, filtros)
 │   │   └── analyzer.py      # Análisis ABSA en vivo (SpaCy + BERT)
-│   └── requirements.txt
+│   ├── Dockerfile           # Imagen optimizada para aarch64 (multi-capa)
+│   ├── entrypoint.sh        # Script de inicio en contenedor (maneja BD montada)
+│   ├── requirements.txt
+│   └── absa_movies.db       # Base de datos SQLite (no en git)
 │
 ├── frontend/
 │   ├── src/
@@ -59,9 +62,14 @@ Arquitectura desacoplada: **Pipeline ETL** → **Base de Datos SQLite** → **AP
 │   │   │   └── useApi.js
 │   │   ├── App.jsx          # Dashboard principal (3 vistas)
 │   │   ├── main.jsx
-│   │   └── index.css        # Tailwind v3 + tema cinematográfico
+│   │   └── index.css        # Tailwind v4 + tema cinematográfico
+│   ├── Dockerfile             # Imagen de producción (multi-stage: build + nginx)
+│   ├── Dockerfile.dev         # Imagen de desarrollo (hot-reload con Vite)
+│   ├── nginx.conf             # Configuración Nginx con proxy /api
 │   ├── tailwind.config.js
-│   ├── vite.config.js       # Proxy /api → localhost:8000
+│   ├── vite.config.js         # Proxy /api configurable via VITE_API_TARGET
+│   ├── postcss.config.js
+│   ├── eslint.config.js
 │   └── package.json
 │
 ├── pipeline/
@@ -69,6 +77,11 @@ Arquitectura desacoplada: **Pipeline ETL** → **Base de Datos SQLite** → **AP
 │   ├── run_pipeline.py      # ETL completo: CSV → SQLite
 │   ├── text_processing.py   # SpaCy: extracción de pares (aspecto, adjetivo)
 │   └── sentiment_analysis.py # BERT/RoBERTa: clasificación de sentimiento
+│
+├── jenkins/
+│   ├── Dockerfile             # Imagen Jenkins con plugins + Docker CLI
+│   ├── jenkins.yaml           # Configuración JCasC (usuarios, credenciales, Git)
+│   └── plugins.txt            # Plugins Jenkins pre-instalados
 │
 ├── data/
 │   ├── raw/
@@ -81,9 +94,13 @@ Arquitectura desacoplada: **Pipeline ETL** → **Base de Datos SQLite** → **AP
 ├── notebooks/
 │   └── ABSA_Pipeline_Train_Inference.ipynb
 │
-├── logs/                    # Logs de ejecución (no en git)
-├── src/                     # Código legado (reutilizado por pipeline/)
-└── dashboard/               # Dashboard legado Streamlit
+├── docker-compose.yml         # Orquestación backend + frontend (desarrollo)
+├── docker-compose.jenkins.yml # Orquestación Jenkins local
+├── Jenkinsfile                # Pipeline CI/CD declarativo
+├── start.sh                   # Script unificado: levanta backend + frontend en paralelo
+├── logs/                      # Logs de ejecución (no en git)
+├── src/                       # Código legado (reutilizado por pipeline/)
+└── dashboard/                 # Dashboard legado Streamlit
 ```
 
 ---
@@ -94,6 +111,7 @@ Arquitectura desacoplada: **Pipeline ETL** → **Base de Datos SQLite** → **AP
 - Node.js 18+
 - pnpm
 - Modelo SpaCy español: `es_core_news_md`
+- Docker & Docker Compose (opcional, para despliegue en contenedores)
 
 ---
 
@@ -126,7 +144,39 @@ pnpm install
 
 ## Uso
 
-### Paso 1 – Pipeline ETL
+### Opción A — Script Unificado `start.sh` (Recomendado para desarrollo local)
+
+```bash
+# Modo desarrollo (hot-reload en backend y frontend)
+./start.sh
+
+# Modo producción local (build estático + serve)
+./start.sh --prod
+```
+
+El script detecta automáticamente `pnpm` y `uvicorn`, levanta ambos servicios en paralelo y gestiona la señal `Ctrl+C` para detenerlos limpiamente.
+
+### Opción B — Docker Compose (Recomendado para aislamiento de entornos)
+
+```bash
+# Levantar backend + frontend en desarrollo
+docker compose up --build
+
+# Solo backend
+docker compose up backend --build
+
+# Variables de entorno soportadas:
+#   BACKEND_PORT=8000   (mapea el puerto del host)
+#   FRONTEND_PORT=5173  (mapea el puerto del host)
+```
+
+El `docker-compose.yml` orquesta:
+- **Backend:** FastAPI con hot-reload (volumen `./backend/app`), BD SQLite persistente y caché de HuggingFace.
+- **Frontend:** Vite con hot-reload (volumen `./frontend/src`), proxy a `http://backend:8000`.
+
+### Opción C — Manual (Backend y Frontend por separado)
+
+#### Paso 1 – Pipeline ETL
 
 Coloca el dataset en `data/raw/IMDB Dataset SPANISH.csv`.
 
@@ -148,7 +198,7 @@ Variables configurables (ver `backend/app/config.py`):
 | `DEVICE` | 0 | `-1` para CPU, `0` para GPU |
 | `MIN_FRECUENCIA` | 1 | Frecuencia mínima de aspectos a conservar |
 
-### Paso 2 – Backend API
+#### Paso 2 – Backend API
 
 ```bash
 # Desde la raíz
@@ -170,7 +220,7 @@ Endpoints disponibles:
 | `GET` | `/api/v1/reviews/{review_id}/aspects` | Aspectos extraídos de una reseña específica |
 | `POST` | `/api/v1/analyze` | Análisis ABSA en vivo de un texto |
 
-### Paso 3 – Frontend Dashboard
+#### Paso 3 – Frontend Dashboard
 
 ```bash
 cd frontend
@@ -179,7 +229,72 @@ pnpm dev
 
 Abre [http://localhost:5173](http://localhost:5173).
 
-El proxy de Vite redirige `/api/*` al backend en `localhost:8000`.
+El proxy de Vite redirige `/api/*` al backend en `localhost:8000` (configurable vía `VITE_API_TARGET`).
+
+---
+
+## Docker en Producción
+
+Para desplegar el frontend como imagen de producción (nginx estático):
+
+```bash
+# Build multi-stage del frontend
+docker build -f frontend/Dockerfile -t absa-frontend .
+
+# Ejecutar
+docker run -p 80:80 absa-frontend
+```
+
+La imagen de producción incluye:
+- **Stage 1:** Build con Node.js 22 + pnpm.
+- **Stage 2:** Servidor Nginx Alpine con `nginx.conf` que sirve `/` desde `dist/` y redirige `/api` al backend.
+
+La imagen del backend (`backend/Dockerfile`) usa una estrategia de capas separadas para reducir el pico de memoria en ARM64 (aarch64):
+1. torch CPU-only
+2. Dependencias livianas de FastAPI
+3. Dependencias pesadas del pipeline (SpaCy, Transformers)
+4. Código fuente (al final para cache-friendly)
+
+---
+
+## CI/CD con Jenkins
+
+El proyecto incluye una configuración completa de Jenkins para integración y despliegue continuo.
+
+### Levantar Jenkins localmente
+
+```bash
+docker compose -f docker-compose.jenkins.yml build
+docker compose -f docker-compose.jenkins.yml up -d
+```
+
+Accede a [http://localhost:8080](http://localhost:8080) con las credenciales configuradas (`admin/admin` por defecto, cambiar en producción).
+
+### Características del Jenkins configurado
+
+- **Imagen personalizada** (`jenkins/Dockerfile`): Jenkins LTS con Docker CLI, plugins pre-instalados y JCasC.
+- **JCasC** (`jenkins/jenkins.yaml`): Configuración declarativa de seguridad, usuarios, credenciales (GitHub, Docker Hub) y SCM.
+- **Docker-in-Docker**: Jenkins puede ejecutar `docker build` y `docker compose` gracias al montaje de `/var/run/docker.sock`.
+
+### Pipeline (`Jenkinsfile`)
+
+El pipeline declarativo ejecuta los siguientes stages:
+
+1. **Checkout** — Obtiene el código fuente.
+2. **Lint & Validar** — Ejecuta linters de Python (`flake8`, `black`) y JavaScript (`ESLint`) en paralelo (comentados por defecto; descomentar al activar los linters).
+3. **Build Docker Images** — Construye las imágenes del backend y frontend con `--no-cache`.
+4. **Desplegar Stack** — Limpia el stack anterior y levanta los servicios con `docker compose up -d`.
+5. **Smoke Tests** — Espera el healthcheck del backend y verifica que el frontend responde.
+
+### Variables de entorno para Jenkins
+
+| Variable | Descripción |
+|---|---|
+| `GITHUB_USER` | Usuario de GitHub para credenciales |
+| `GITHUB_TOKEN` | Token de acceso personal de GitHub |
+| `DOCKER_HUB_TOKEN` | Token de Docker Hub para push de imágenes |
+| `JENKINS_ADMIN_USER` | Usuario admin de Jenkins (default: `admin`) |
+| `JENKINS_ADMIN_PASSWORD` | Contraseña admin de Jenkins (default: `admin`) |
 
 ---
 
@@ -218,14 +333,21 @@ El proxy de Vite redirige `/api/*` al backend en `localhost:8000`.
 | **CORS** | Permitido explícitamente para `localhost:5173` y `localhost:3000` vía variable de entorno |
 | **Dark Mode** | Tailwind `dark:` + clase `.dark` toggled vía JS |
 | **Análisis en vivo** | Ejecutado en thread separado (`asyncio.to_thread`) para no bloquear el event loop |
+| **Docker multi-stage** | Imagen de producción del frontend: build + nginx; backend con capas separadas para reducir RAM en ARM64 |
+| **Healthchecks** | Backend expone healthcheck en `/api/v1/summary`; Jenkins espera healthcheck antes de smoke tests |
+| **Proxy configurable** | Vite proxy usa `VITE_API_TARGET` para adaptarse a entornos Docker y local |
+| **Script unificado** | `start.sh` gestiona paralelismo, traps de señales y modos dev/prod |
+| **JCasC** | Configuración de Jenkins como código: usuarios, credenciales y seguridad versionados |
 
 ---
 
 ## Seguridad y Git
 
 - **No se versionan archivos sensibles ni generados:** El `.gitignore` excluye bases de datos SQLite (`.db`), logs (`.log`), archivos PID (`.pid`), archivos de sistema (`.DS_Store`), entornos virtuales y pesos de modelos.
-- **Variables de entorno:** Las configuraciones sensibles se leen desde variables de entorno con valores por defecto seguros para desarrollo local (ver `backend/app/config.py`).
+- **Variables de entorno:** Las configuraciones sensibles se leen desde variables de entorno con valores por defecto seguros para desarrollo local (ver `backend/app/config.py` y `docker-compose.jenkins.yml`).
 - **Dataset IMDb Spanish (~130MB)** está en `.gitignore`; descárgalo de [Kaggle](https://www.kaggle.com/datasets/lucamla/imdb-reviews-in-spanish) y colócalo en `data/raw/`.
+- **Credenciales Jenkins:** El archivo `jenkins/jenkins.yaml` usa interpolación de variables de entorno (`${JENKINS_ADMIN_PASSWORD}`); nunca hardcodea secretos. En producción, inyecta las credenciales via `.env` o secretos de Docker.
+- **Docker context limpio:** `.dockerignore` excluye datos pesados, entornos virtuales, logs, archivos de sistema y el propio `README.md` para minimizar el contexto de build.
 
 ---
 
@@ -233,6 +355,7 @@ El proxy de Vite redirige `/api/*` al backend en `localhost:8000`.
 
 - El modelo fine-tuneado `robertuito-imdb-finetuned` es opcional. Si no existe, el pipeline usa el modelo base `pysentimiento/robertuito-sentiment-analysis`.
 - Los archivos de configuración del modelo (`config.json`, `tokenizer_config.json`, etc.) sí se versionan para documentar la arquitectura, pero los **pesos** (`.safetensors`, `.bin`, `.pt`) están excluidos por su tamaño.
+- El backend en Docker monta la BD SQLite como volumen para evitar file-lock issues en macOS y preservar los datos entre reinicios.
 
 ---
 
