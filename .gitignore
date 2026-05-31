@@ -14,13 +14,33 @@ data/raw/*.csv
 data/raw/*.zip
 data/processed/*.parquet
 data/processed/*.csv
+data/output/*.parquet
 
-# Model weights (too large for git)
+# Model weights and binaries (too large for git)
 data/models/**
 !data/models/.gitkeep
+data/output/**/*.safetensors
+data/output/**/*.bin
+data/output/**/*.pt
+data/output/**/*.pth
+data/output/**/checkpoint-*/
 
 # Logs
-logs/*.log
+logs/
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+backend/*.db
+
+# Node
+node_modules/
+.pnpm-store/
+frontend/dist/
+
+# System files
+*.pid
 
 # macOS
 .DS_Store
